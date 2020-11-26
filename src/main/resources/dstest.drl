@@ -1,0 +1,27 @@
+package example;
+
+import java.util.List;
+import datasource persons;
+
+@Table("test")
+declare Test
+    @DatasourceColumn(id = true, key = true, column = "id")
+    id : String
+    @DatasourceColumn(id = false, key = true, column = "age")
+    age : Int
+end
+
+rule "rule one"
+    when
+        $l : Test( age > 0 ) from persons
+    then
+        System.out.println("rule one starting ----------------------------------");
+        System.out.println("my age is " + $l.get(0).getAge());
+        Test test = new Test();
+        test.setId("testID");
+        test.setAge(1);
+        persons.insert(test);
+        System.out.println("total: " + $l.size());
+        System.out.println("rule one finishing ---------------------------------");
+        //thisrule.stopThisOne();
+end
