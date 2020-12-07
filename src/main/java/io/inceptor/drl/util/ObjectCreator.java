@@ -67,6 +67,10 @@ public class ObjectCreator<T> {
         return temp;
     }
 
+    public T getLastObject(){
+        return temp;
+    }
+
     public Object getProperty(String fieldName) {
         try {
             Method getter = resolvedClass.getGetter(fieldName);

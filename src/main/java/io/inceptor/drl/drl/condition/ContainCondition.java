@@ -15,7 +15,9 @@ import java.util.Map;
 
 public class ContainCondition implements Condition {
     private String left;
+    private String fullleft;
     private String contain;
+    private boolean isLeftMethodCall;
     private List<Value> rights;
     private Method getter;
     private List<Object> values = new ArrayList<>();
@@ -121,5 +123,13 @@ public class ContainCondition implements Condition {
         if (!(value.getType() == Value.Type.METHODCALL))
             return value.getValue();
         return MVEL.executeExpression(methodCalls.get(value.getValue()), symbolTable);
+    }
+
+    public boolean getIsLeftMethodCall() {
+        return isLeftMethodCall;
+    }
+
+    public void setIsLeftMethodCall(boolean leftMethodCall) {
+        isLeftMethodCall = leftMethodCall;
     }
 }

@@ -1,0 +1,20 @@
+package example;
+
+import redis.clients.jedis.Protocol;
+
+import datasource redis_1;
+import datasource kafka_1;
+
+import drl example.importfollower.drl;
+
+rule "is Milly"
+    when
+        $p : Person( (name == "Jimmy" && hight > 150) || (hight < 120 && name == "carry") )
+    then
+        System.out.println("importmain executed");
+        List x = (List) redis_1.sendCommand(Protocol.Command.KEYS, "*");
+        System.out.println(new String(x.get(0)));
+        $p.setName("Sally");
+        kafka_1.putMsg("stream_inn",0,null,"hello,world");
+end
+

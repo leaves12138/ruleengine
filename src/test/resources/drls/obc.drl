@@ -1,0 +1,32 @@
+package example;
+
+declare Person
+    name : String
+    dateOfBirth : java.util.Date
+    phone : Int
+    hight : Int
+    isTall : Boolean
+end
+
+
+rule "rule one"
+    when
+        $p : Person( (name == "Jimmy" && hight > 150) || (hight < 120 && name == "carry") )
+    then
+        System.out.println("rule one starting ----------------------------------");
+        System.out.println("this is " + $p.getName());
+        System.out.println("complex condition pass");
+        System.out.println("rule one finishing ---------------------------------");
+        //thisrule.stopThisOne();
+end
+
+rule "test hight"
+    when
+        $p : Person(hight > 160)
+        $q : Person(name == $p.getName())
+    then
+        //$p.setIsTall(true);
+        System.out.println("I'm taller than 160");
+        System.out.println("my name is " + $q.getName());
+        System.out.println(1+234);
+end

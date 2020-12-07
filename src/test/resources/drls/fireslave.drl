@@ -1,0 +1,8 @@
+package example;
+
+rule "slave"
+    when
+        $p : Person(name == "Jimmy" && hight > 150 , isTall == true)
+    then
+        $p.setIsTall(false);
+end

@@ -11,7 +11,7 @@ public class DrlClassLoader extends ClassLoader {
 
     public Class defineClass(String name, byte[] b) {
         try {
-            Class c = getParent().loadClass(name);
+            Class c = loadClass(name);
             return c;
         }
         catch (ClassNotFoundException e) {

@@ -219,8 +219,24 @@ public class DeclaredClass {
                 type = "java/lang/Float;";
             } else if ("Double".equals(javaType)) {
                 type = "java/lang/Double;";
-            } else if ("Char".equals(javaType)) {
+            } else if ("Character".equals(javaType)) {
                 type = "java/lang/Character;";
+            } else if ("Time".equals(javaType)) {
+                type = "java/sql/Time;";
+            } else if ("Timestamp".equals(javaType)) {
+                type = "java/sql/Timestamp;";
+            } else if ("Date".equals(javaType)) {
+                type = "java/util/Date;";
+            } else if ("byte[]".equals(javaType)) {
+                type = "[B";
+                return type;
+            } else if ("BigDecimal".equals(javaType)) {
+                type = "java/math/BigDecimal;";
+            } else if ("Json".equals(javaType)) {
+                type = "com/fasterxml/jackson/databind/JsonNode;";
+            } else if ("Object[]".equals(javaType)) {
+                type = "[Ljava/lang/Object;";
+                return type;
             } else {
                 type = javaType.replaceAll("\\.", "/") + ";";
             }

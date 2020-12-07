@@ -78,7 +78,7 @@ Identifier
     :   Letter (Letter|Digit)*
     ;
 
-STRING : '"' ('\\"'|.)*? '"' {setText(getText().substring(1,getText().length()-1));};
+STRING : '"' ('\\"'|.)*? '"' {setText(getText().substring(1,getText().length()-1).replace("\\\"","\""));};
 
 NUMBER :   Digit+ ;
 

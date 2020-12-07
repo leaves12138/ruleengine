@@ -133,7 +133,7 @@ public class DrlLexer extends Lexer {
 	private void STRING_action(RuleContext _localctx, int actionIndex) {
 		switch (actionIndex) {
 		case 0:
-			setText(getText().substring(1,getText().length()-1));
+			setText(getText().substring(1,getText().length()-1).replace("\\\"","\""));
 			break;
 		}
 	}

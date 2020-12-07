@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class DrlSession {
     private Map<String, ParsedDrlFile> drlCache = new HashMap();
@@ -35,8 +36,18 @@ public class DrlSession {
         setEntrance(fullName);
     }
 
+    public void addDs(InputStream is) throws IOException{
+        addDs(DrlTool.parseDs(is));
+    }
+
     public void addDs(Datasource ds) {
         dsCache.put(ds.getName(), ds);
+    }
+
+    public void addDs(List<Datasource> dses) {
+        if (dses == null)
+            return;
+        dses.forEach(datasource -> dsCache.put(datasource.getName(), datasource));
     }
 
     public Datasource fetchDatasource(String dsStr) {
@@ -64,8 +75,13 @@ public class DrlSession {
         Rule rule = file.getHeadRule();
         stopped = false;
         while (!stopped) {
-            Object c = objectQueue.poll();
-            rule.accept(c);
+            try {
+                Object c = objectQueue.take();
+                rule.accept(c);
+            }
+            catch (InterruptedException e){
+                throw new RuntimeException("drl back session iterrupted");
+            }
         }
     }
 
@@ -79,9 +95,13 @@ public class DrlSession {
         Rule rule = file.getHeadRule();
         stopped = false;
         Object c;
-        while ((c = objectQueue.poll()) != null) {
-            rule.accept(c);
+        try {
+            while ((c = objectQueue.poll(1000, TimeUnit.MICROSECONDS)) != null) {
+                rule.accept(c);
+            }
+        } catch (InterruptedException e){
         }
+        close();
     }
 
     public void setEntrance(String en) {
@@ -120,4 +140,27 @@ public class DrlSession {
 
         return null;
     }
+
+    public StreamObjectCreator getStreamObjectCreator(){
+        if (entrance == null)
+            return null;
+        List<DeclaredClass> declaredClasses = drlCache.get(entrance).getDeclaredClasses();
+        for (DeclaredClass declaredClass : declaredClasses){
+            for (DeclaredClass.Annotation annotation : declaredClass.getAnnotations()){
+                if(annotation.getName().equals("Stream")){
+                    declaredClass.init();
+                    Class c = declaredClass.getInstance();
+                    return new StreamObjectCreator(c);
+                }
+            }
+        }
+        return null;
+    }
+
+    public void close(){
+        for (Datasource datasource : dsCache.values()){
+            datasource.close();
+        }
+    }
+
 }

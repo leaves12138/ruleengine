@@ -1,11 +1,15 @@
 package io.inceptor.drl.util;
 
-import io.inceptor.drl.ast.TreeListener;
+import io.inceptor.drl.ast.DrlTreeListener;
+import io.inceptor.drl.ast.DsTreeVisitor;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.ParsedDrlFile;
+import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.exceptions.ParseDrlRuntimeException;
 import io.inceptor.drl.parser.DrlLexer;
 import io.inceptor.drl.parser.DrlParser;
+import io.inceptor.drl.parser.DsLexer;
+import io.inceptor.drl.parser.DsParser;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -22,11 +26,11 @@ import static java.lang.System.err;
 public class DrlTool {
     static String VERSION = "1.0";
 
-    public static void info(String info){
+    public static void info(String info) {
         out.println(ConsoleColors.GREEN + info + ConsoleColors.RESET);
     }
 
-    public static void err(String error){
+    public static void err(String error) {
         err.println(error);
     }
 
@@ -34,12 +38,31 @@ public class DrlTool {
 
     static DrlParser parser = new DrlParser(null);
 
-    static TreeListener treeListener = new TreeListener();
+    static DrlTreeListener drlTreeListener = new DrlTreeListener();
 
     static ParseTreeWalker walker = new ParseTreeWalker();
 
+
+    static DsLexer dsLexer = new DsLexer(null);
+
+    static DsParser dsParser = new DsParser(null);
+
+    static DsTreeVisitor dsVisitor = new DsTreeVisitor();
+
     static {
         parser.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(Recognizer<?, ?> recognizer,
+                                    Object offendingSymbol,
+                                    int line,
+                                    int charPositionInLine,
+                                    String msg,
+                                    RecognitionException e) {
+                throw new ParseDrlRuntimeException("line " + line + ":" + charPositionInLine + " " + msg);
+            }
+
+        });
+        dsParser.addErrorListener(new BaseErrorListener() {
             @Override
             public void syntaxError(Recognizer<?, ?> recognizer,
                                     Object offendingSymbol,
@@ -57,8 +80,14 @@ public class DrlTool {
     public static ParsedDrlFile parse(InputStream is) throws IOException {
         lexer.setInputStream(CharStreams.fromStream(is));
         parser.setTokenStream(new CommonTokenStream(lexer));
-        walker.walk(treeListener, parser.file());
-        return treeListener.getParsedDrlFile();
+        walker.walk(drlTreeListener, parser.file());
+        return drlTreeListener.getParsedDrlFile();
+    }
+
+    public static List<Datasource> parseDs(InputStream is) throws IOException {
+        dsLexer.setInputStream(CharStreams.fromStream(is));
+        dsParser.setTokenStream(new CommonTokenStream(dsLexer));
+        return dsVisitor.visit(dsParser.declares());
     }
 
     public static ParsedDrlFile fetchFromFs(String drl) {
@@ -76,7 +105,7 @@ public class DrlTool {
 
     public static void makeJarFromDrl(List<String> drlPaths, String location, String jarName) throws IOException {
         FileOutputStream fileOutputStream = new FileOutputStream(new File(location, jarName));
-        try(JarOutputStream jarOutputStream = new JarOutputStream(fileOutputStream)) {
+        try (JarOutputStream jarOutputStream = new JarOutputStream(fileOutputStream)) {
             for (String drlPath : drlPaths) {
                 File dir = new File(drlPath);
                 if (!dir.exists())
@@ -119,7 +148,7 @@ public class DrlTool {
         File file = new File(location, jarName);
         if (file.exists())
             file.delete();
-        try(JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(file))) {
+        try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(file))) {
             for (String drlPath : drlPaths) {
                 File drlDrl = new File(drlPath);
                 if (!drlDrl.exists())
@@ -138,8 +167,21 @@ public class DrlTool {
                             continue;
                         }
 
-                        if (!child.getName().endsWith(".drl"))
+                        if (!child.getName().endsWith(".drl")) {
+                            if (child.getName().endsWith(".ds")) {
+                                try (InputStream in = new FileInputStream(child); InputStream in2 = new FileInputStream(child)) {
+                                    DrlTool.parseDs(in); //check the syntax of the ds file
+                                    JarEntry jarEntry = new JarEntry(child.getName());
+                                    jarOutputStream.putNextEntry(jarEntry);
+                                    int res;
+                                    while ((res = in2.read(bytes)) != -1) {
+                                        jarOutputStream.write(bytes, 0, res);
+                                    }
+
+                                }
+                            }
                             continue;
+                        }
 
 
                         try (InputStream in = new FileInputStream(child); InputStream in2 = new FileInputStream(child)) {
@@ -159,12 +201,11 @@ public class DrlTool {
     }
 
     public static void main(String[] args) {
-        args = new String[2];
-        args[0] = "-pj";
-        args[1] = "/home/transwarp/gitlab/inceptor-drools/src/main/resources";
-
         DrlTool tool = new DrlTool(args);
-        if ( args.length == 0 ) { tool.help(); exit(0); }
+        if (args.length == 0) {
+            tool.help();
+            exit(0);
+        }
         tool.process();
     }
 
@@ -238,11 +279,10 @@ public class DrlTool {
                     try {
 
                         Field f = c.getField(o.fieldName);
-                        if ( argValue==null ) {
-                            if ( arg.startsWith("-no-") ) f.setBoolean(this, false);
+                        if (argValue == null) {
+                            if (arg.startsWith("-no-")) f.setBoolean(this, false);
                             else f.setBoolean(this, true);
-                        }
-                        else f.set(this, argValue);
+                        } else f.set(this, argValue);
                     } catch (Exception e) {
 
                     }
@@ -252,7 +292,7 @@ public class DrlTool {
                 err.println("can't recognize option ");
                 exit(1);
             }
-            if ( outputDirectory!=null ) {
+            if (outputDirectory != null) {
                 if (outputDirectory.endsWith("/") ||
                         outputDirectory.endsWith("\\")) {
                     outputDirectory =
@@ -263,44 +303,42 @@ public class DrlTool {
                 if (outDir.exists() && !outDir.isDirectory()) {
                     outputDirectory = ".";
                 }
-            }
-            else {
+            } else {
                 outputDirectory = ".";
             }
         }
     }
 
-    private void help(){
+    private void help() {
         info("\nWelcome To Transwarp Rule Engine Version " + DrlTool.VERSION);
         for (Option o : optionDefs) {
-            String name = o.name + (o.argType!=OptionArgType.NONE? " [arg]" : "");
+            String name = o.name + (o.argType != OptionArgType.NONE ? " [arg]" : "");
             String s = String.format(" %-19s %s", name, o.description);
             info(s);
         }
     }
 
-    private void process(){
+    private void process() {
         if (help) {
-            help();exit(0);
+            help();
+            exit(0);
         }
 
-        if (packageDrlOut){
-            if (drlDirs.size() == 0){
+        if (packageDrlOut) {
+            if (drlDirs.size() == 0) {
                 err("target drl directories can't be zero");
             }
             try {
                 packageDrlsInJar(drlDirs, outputDirectory, packageDrlOutName);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 err(e.getMessage());
             }
         }
 
-        if (getPojo){
+        if (getPojo) {
             try {
                 makeJarFromDrl(drlDirs, outputDirectory, getPojoOutName);
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 err(e.getMessage());
             }
         }

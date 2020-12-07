@@ -4,28 +4,37 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>inceptor-drools</artifactId>
+    <groupId>io.transwarp</groupId>
+    <artifactId>slipstream-drools</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.junit</groupId>
-                <artifactId>junit-bom</artifactId>
-                <version>5.7.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <distributionManagement>
+        <repository>
+            <id>huwei</id>
+            <name>releaser</name>
+            <url>http://172.16.1.168:8081/artifactory/libs-release-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>huwei</id>
+            <name>snapshot</name>
+            <url>http://172.16.1.168:8081/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+<!--        #in setting.xml#       -->
+<!--    <servers>-->
+<!--        <server>-->
+<!--            <id>huwei</id>-->
+<!--            <username>huwei</username>-->
+<!--            <password>123456</password>-->
+<!--        </server>-->
+<!--    </servers>-->
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.antlr</groupId>-->
-<!--            <artifactId>antlr4</artifactId>-->
-<!--            <version>4.8-1</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4</artifactId>
+            <version>4.8-1</version>
+        </dependency>
 
         <dependency>
             <groupId>org.antlr</groupId>
@@ -35,7 +44,15 @@
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.7.0</version>
         </dependency>
 
         <dependency>
@@ -63,19 +80,83 @@
             <version>5.4.23.Final</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-common</artifactId>-->
-<!--            <version>3.2.1</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.3.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hadoop</groupId>-->
-<!--            <artifactId>hadoop-hdfs</artifactId>-->
-<!--            <version>3.2.1</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>project</groupId>
+            <artifactId>project</artifactId>
+            <version>project</version>
+            <scope>system</scope>
+            <type>test-jar</type>
+            <systemPath>${basedir}/genjar/pojos.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.4.0-slipstream</version>
+        </dependency>
     </dependencies>
-
+<profiles>
+    <profile>
+        <id>full</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                            <configuration>
+                                <transformers>
+                                    <transformer
+                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                        <mainClass>io.inceptor.drl.util.DrlTool</mainClass>
+                                    </transformer>
+                                </transformers>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+</profiles>
     <build>
         <plugins>
             <plugin>
@@ -87,29 +168,45 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
-
+            <!-- 设置多个源文件夹 -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
                 <executions>
+                    <!-- 添加主源码目录 -->
                     <execution>
-                        <phase>package</phase>
+                        <id>add-source</id>
+                        <phase>initialize</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>add-source</goal>
                         </goals>
                         <configuration>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>io.inceptor.drl.util.DrlTool</mainClass>
-                                </transformer>
-                            </transformers>
+                            <sources>
+                                <source>${project.basedir}/gen</source>
+                                <source>${project.basedir}/src/main/java</source>
+                            </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.0.1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
         </plugins>
     </build>
+
+
+
 
 </project>

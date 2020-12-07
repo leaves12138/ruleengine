@@ -1,0 +1,16 @@
+package example;
+
+declare Person
+    name : String
+    dateOfBirth : java.util.Date
+    phone : Integer
+    hight : Integer
+    isTall : Boolean
+end
+
+rule "master"
+    when
+        $p : Person(name == "Jimmy" && hight > 150 , isTall == true)
+    then
+        thisrule.fireRuleFile("example/fireslave");
+end

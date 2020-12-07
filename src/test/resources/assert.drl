@@ -1,0 +1,17 @@
+package example;
+
+declare Person
+    name : String
+    dateOfBirth : java.util.Date
+    phone : Integer
+    hight : Integer
+    isTall : Boolean
+end
+
+rule "rule one"
+    when
+        $p : Person((name == "Jimmy" && hight > 150) || (hight < 120 && name == "carry") , isTall == true)
+    then
+        $p.setName("Sally");
+end
+

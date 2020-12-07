@@ -41,7 +41,7 @@ public class ParsedDrlFile {
             declaredClass.init();
         }
         if (ruleHead != null) {
-            ruleHead.init(declaredClasses, datasources, session);
+            ruleHead.init(declaredClasses, datasources,this, session);
         }
 
         inited = true;

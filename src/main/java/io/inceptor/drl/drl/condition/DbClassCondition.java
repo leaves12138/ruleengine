@@ -30,9 +30,18 @@ public class DbClassCondition extends ClassCondition {
 
     @Override
     public boolean evaluate(Object o, SymbolTable symbolTable) {
-        String selectSql = getSqlDynamic(symbolTable);
 
-        List<Object> results = datasource.select(selectSql, conClass);
+
+        List<Object> results;
+        if (datasource.type() == Datasource.RMDB) {
+            String selectSql = getSqlDynamic(symbolTable);
+            results = datasource.select(selectSql, conClass);
+        }
+        else if (datasource.type() == Datasource.REDIS) {
+            return false;
+        } else {
+            return false;
+        }
         if (results.size() == 0)
             return false;
 

@@ -64,9 +64,9 @@ condition
     | left=condition op=(AndAnd|OrOr) right=condition #AndOrCondition
     ;
 
-compareClause : Identifier COMPARE literal ;
+compareClause returns[boolean lm]: (Identifier{$lm=false;}|methodCall{$lm=true;}) COMPARE literal ;
 
-containClause : Identifier CONTAIN '[' literal| (',' literal)* ']' ;
+containClause returns[boolean lm]: (Identifier{$lm=false;}|methodCall{$lm=true;}) CONTAIN '[' literal| (',' literal)* ']' ;
 
 literal
     :   NUMBER                   #NumberBranch
@@ -92,7 +92,7 @@ codeline : LINE ;
 
 
 qualifiedName
-    :   Identifier ('.' Identifier)* ('.' '*')?
+    :   Identifier ('.' Identifier)* (('.' '*')| ('[' NUMBER ']'))?
     ;
 
 

@@ -3,6 +3,7 @@ package io.inceptor.drl.drl.datasource.impl;
 import com.alibaba.druid.pool.DruidDataSource;
 import io.inceptor.drl.annotation.DatasourceColumn;
 import io.inceptor.drl.drl.condition.Condition;
+import io.inceptor.drl.drl.datasource.AbstractDatasource;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.sql.SQLGenerator;
@@ -18,7 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class JDBCDatasource implements Datasource {
+public class JDBCDatasource extends AbstractDatasource {
     private String name;
 
     protected String url;
@@ -58,6 +59,13 @@ public class JDBCDatasource implements Datasource {
         sqlGenerator = new SQLGenerator(getDialect(druidDataSource.getDbType()));
 
         inited = true;
+    }
+
+    @Override
+    public void close() {
+        if (inited)
+            druidDataSource.close();
+        inited = false;
     }
 
     @Override
@@ -313,53 +321,6 @@ public class JDBCDatasource implements Datasource {
             preparedStatement.setObject(1, getter.invoke(o));
         } catch (Exception e) {
             throw new RuntimeException("fill updateById field failed", e);
-        }
-    }
-
-
-    public static void main(String[] args) {
-        JDBCDatasource jdbcDatasource = new JDBCDatasource("test", "jdbc:mysql://localhost:3306/drools", "root", "password");
-        jdbcDatasource.init();
-
-
-        Test test = new Test();
-        test.setAge(133);
-        test.setId("id1111");
-//        jdbcDatasource.insert(test);
-        jdbcDatasource.deleteById(test);
-
-        List<Test> list = jdbcDatasource.getData(null, Test.class);
-        for (Test t : list)
-            System.out.println(t);
-
-        return;
-    }
-
-    //    @Table("test")
-    public static class Test {
-        @DatasourceColumn(id = true, key = true, column = "id")
-        String id;
-        @DatasourceColumn(id = false, key = true, column = "age")
-        Integer age;
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setAge(Integer age) {
-            this.age = age;
-        }
-
-        public Integer getAge() {
-            return age;
-        }
-
-        public String toString() {
-            return "id:" + id + ";age:" + age;
         }
     }
 }

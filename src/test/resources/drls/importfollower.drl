@@ -1,0 +1,60 @@
+package example;
+
+import java.util.List;
+import datasource persons;
+
+@Stream("sdf")
+declare Person
+    @TableColumn("name")
+    name : String
+    @TableColumn("date")
+    dateOfBirth : java.util.Date
+    @TableColumn("phone")
+    phone : Int
+    @TableColumn("hight")
+    hight : Int
+    isTall : Boolean
+end
+
+@Table("test")
+declare Test
+    @DatasourceColumn(id = true, key = true, column = "id")
+    id : String
+    @DatasourceColumn(id = false, key = true, column = "age")
+    age : Int
+end
+
+rule "rule one"
+    when
+        $p : Person( (name == "Jimmy" && hight > 150) || (hight < 120 && name == "carry") )
+        $l : Test( age < $p.getHight ) from persons
+    then
+        System.out.println("rule one starting ----------------------------------");
+        System.out.println("this is Jimmy");
+        System.out.println($p.getName()+" is not null");
+        System.out.println($l.get(0).getAge());
+        System.out.println("rule one finishing ---------------------------------");
+end
+
+
+rule "test hight"
+    when
+        $p : Person(hight > 160)
+        $q : Person(name == $p.getName)
+    then
+        System.out.println("test hight");
+end
+
+rule "test BirthDay"
+    when
+        $p : Person(dateOfBirth > "Thu Nov 01 18:27:06 CST 2018")
+    then
+        System.out.println("test BirthDay");
+end
+
+rule "hight > 2"
+    when
+        Person(hight > 2)
+    then
+        System.out.println("hight > 2");
+end

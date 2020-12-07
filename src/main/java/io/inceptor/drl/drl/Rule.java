@@ -19,6 +19,8 @@ public class Rule {
 
     private DrlSession session;
 
+    private ParsedDrlFile parsedDrlFile;
+
     private String name;
 
     private SymbolTable symbolTable;
@@ -35,9 +37,10 @@ public class Rule {
 
     private boolean inited = false;
 
-    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources, DrlSession session) {
+    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources,ParsedDrlFile parsedDrlFile, DrlSession session) {
         if (!inited) {
             this.session = session;
+            this.parsedDrlFile = parsedDrlFile;
 
             symbolTable = new SymbolTable();
             tempNexts = new ArrayList<>(3);
@@ -47,9 +50,6 @@ public class Rule {
                 symbolTable.put(datasource.getName(), datasource);
             }
 
-//            for (DeclaredClass declaredClass : list){
-//                imports.put(declaredClass.getClassName(), declaredClass.getInstance());
-//            }
             symbolTable.putAll(ParsedDrlFile.staticImpots);
 
             for (ClassCondition classCondition : classConditions) {
@@ -62,7 +62,7 @@ public class Rule {
         }
 
         if (next != null) {
-            next.init(list, dataSources, session);
+            next.init(list, dataSources,parsedDrlFile, session);
         }
     }
 
@@ -93,8 +93,19 @@ public class Rule {
 
     }
 
-    public void firerulefile(String fileName) {
+    public void fireRuleFile(String fileName) {
         ParsedDrlFile drlFile = session.fetchParsedDrlFile(fileName);
+        drlFile.getDeclaredClasses().addAll(parsedDrlFile.getDeclaredClasses());
+        List<DeclaredClass> ori = drlFile.getDeclaredClasses();
+        List<DeclaredClass> des = parsedDrlFile.getDeclaredClasses();
+        outer:for (DeclaredClass d : des){
+            for (DeclaredClass o : ori){
+                if (o.getJVMFullName().equals(d.getJVMFullName()))
+                    continue outer;
+            }
+            ori.add(d);
+        }
+
         if (!drlFile.isInited())
             drlFile.init(session);
         Rule tempRuleHead = drlFile.getRuleHead();
