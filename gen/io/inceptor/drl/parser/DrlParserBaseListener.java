@@ -268,6 +268,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterExistsCondition(DrlParser.ExistsConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExistsCondition(DrlParser.ExistsConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterContainCondition(DrlParser.ContainConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -335,6 +347,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitContainClause(DrlParser.ContainClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterExistsClause(DrlParser.ExistsClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitExistsClause(DrlParser.ExistsClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -419,6 +443,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMethodCall(DrlParser.MethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJsonPath(DrlParser.JsonPathContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJsonPath(DrlParser.JsonPathContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

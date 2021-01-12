@@ -20,8 +20,8 @@ public class CannotInvokeMethodException extends RuntimeException {
     }
 
     protected CannotInvokeMethodException(String message, Throwable cause,
-                                     boolean enableSuppression,
-                                     boolean writableStackTrace) {
+                                          boolean enableSuppression,
+                                          boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

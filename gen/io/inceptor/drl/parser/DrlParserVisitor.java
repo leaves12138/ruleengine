@@ -139,6 +139,13 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitConditions(DrlParser.ConditionsContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code ExistsCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExistsCondition(DrlParser.ExistsConditionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code ContainCondition}
 	 * labeled alternative in {@link DrlParser#condition}.
 	 * @param ctx the parse tree
@@ -178,6 +185,12 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitContainClause(DrlParser.ContainClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#existsClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExistsClause(DrlParser.ExistsClauseContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code NumberBranch}
 	 * labeled alternative in {@link DrlParser#literal}.
@@ -226,6 +239,12 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMethodCall(DrlParser.MethodCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#jsonPath}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJsonPath(DrlParser.JsonPathContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#booleanLiteral}.
 	 * @param ctx the parse tree

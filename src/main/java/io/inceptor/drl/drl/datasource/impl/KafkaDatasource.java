@@ -16,16 +16,16 @@ public class KafkaDatasource extends AbstractDatasource {
     private String name;
 
     private Properties properties;
-    private Producer<Object,Object> producer;
+    private Producer<Object, Object> producer;
     private boolean inited = false;
 
-    public KafkaDatasource(String name, Properties properties){
+    public KafkaDatasource(String name, Properties properties) {
         this.name = name;
         this.properties = properties;
     }
 
     @Override
-    public void init(){
+    public void init() {
         if (inited)
             return;
         producer = new KafkaProducer<Object, Object>(properties);
@@ -44,25 +44,25 @@ public class KafkaDatasource extends AbstractDatasource {
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Integer partition, long timestamp, Object key, Object msg){
-        final ProducerRecord record = new ProducerRecord(topic,partition,timestamp,key,msg);
+    public Future<RecordMetaData> putMsg(String topic, Integer partition, long timestamp, Object key, Object msg) {
+        final ProducerRecord record = new ProducerRecord(topic, partition, timestamp, key, msg);
         return producer.send(record);
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Integer partition, Object key, Object msg){
-        final ProducerRecord record = new ProducerRecord(topic,partition,key,msg);
+    public Future<RecordMetaData> putMsg(String topic, Integer partition, Object key, Object msg) {
+        final ProducerRecord record = new ProducerRecord(topic, partition, key, msg);
         return producer.send(record);
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Object key, Object msg){
-        final ProducerRecord record = new ProducerRecord(topic,key,msg);
+    public Future<RecordMetaData> putMsg(String topic, Object key, Object msg) {
+        final ProducerRecord record = new ProducerRecord(topic, key, msg);
         return producer.send(record);
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Object msg){
+    public Future<RecordMetaData> putMsg(String topic, Object msg) {
         final ProducerRecord record = new ProducerRecord(topic, msg);
         return producer.send(record);
     }

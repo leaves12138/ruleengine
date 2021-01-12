@@ -1,0 +1,14 @@
+package example;
+
+declare Json
+    json : Json
+end
+
+rule "rule one"
+    when
+        $p : Json($j : json.a.b == "b", json.a.c > 1, json.b[0] == "nice", json.a.b in ["a", "b", "c"], json.a.c exists)
+        $w : Json( json.a.b == $j)
+    then
+        $p.setJson(null);
+        System.out.println($j.toString);
+end

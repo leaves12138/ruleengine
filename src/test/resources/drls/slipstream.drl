@@ -10,6 +10,8 @@ declare Person2
     age : Int
     @TableColumn("gender")
     gender : Boolean
+    @TableColumn("json")
+    json : Json
 end
 
 @Table("test")

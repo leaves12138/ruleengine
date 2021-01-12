@@ -47,7 +47,7 @@ public class DrlTest implements Extension, TestInstancePostProcessor {
                     if (!fileName.endsWith(".drl"))
                         throw new RuntimeException("only support drl file");
                     String[] temps = fileName.split("/");
-                    fileName = temps[temps.length-1];
+                    fileName = temps[temps.length - 1];
                     fileName = fileName.substring(0, fileName.length() - 4);
                     InputStream inputStream = url.openStream();
                     if (i == 0)
@@ -121,11 +121,11 @@ public class DrlTest implements Extension, TestInstancePostProcessor {
         }
     }
 
-    private String drlsRoot(){
+    private String drlsRoot() {
         return Drools.class.getClassLoader().getResource("drls").getPath();
     }
 
-    private String libRoot(){
-        return Drools.class.getClassLoader().getResource("drls").getPath()+"/..";
+    private String libRoot() {
+        return Drools.class.getClassLoader().getResource("drls").getPath() + "/..";
     }
 }

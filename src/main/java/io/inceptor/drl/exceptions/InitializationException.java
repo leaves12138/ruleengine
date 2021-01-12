@@ -1,6 +1,6 @@
 package io.inceptor.drl.exceptions;
 
-public class InitializationException extends RuntimeException{
+public class InitializationException extends RuntimeException {
     static String msg = "drl initialize failed";
 
     public InitializationException() {
@@ -20,8 +20,8 @@ public class InitializationException extends RuntimeException{
     }
 
     protected InitializationException(String message, Throwable cause,
-                                  boolean enableSuppression,
-                                  boolean writableStackTrace) {
+                                      boolean enableSuppression,
+                                      boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -222,6 +222,18 @@ public interface DrlParserListener extends ParseTreeListener {
 	 */
 	void exitConditions(DrlParser.ConditionsContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ExistsCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 */
+	void enterExistsCondition(DrlParser.ExistsConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ExistsCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 */
+	void exitExistsCondition(DrlParser.ExistsConditionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code ContainCondition}
 	 * labeled alternative in {@link DrlParser#condition}.
 	 * @param ctx the parse tree
@@ -289,6 +301,16 @@ public interface DrlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitContainClause(DrlParser.ContainClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#existsClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterExistsClause(DrlParser.ExistsClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#existsClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitExistsClause(DrlParser.ExistsClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code NumberBranch}
 	 * labeled alternative in {@link DrlParser#literal}.
@@ -371,6 +393,16 @@ public interface DrlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMethodCall(DrlParser.MethodCallContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#jsonPath}.
+	 * @param ctx the parse tree
+	 */
+	void enterJsonPath(DrlParser.JsonPathContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#jsonPath}.
+	 * @param ctx the parse tree
+	 */
+	void exitJsonPath(DrlParser.JsonPathContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link DrlParser#booleanLiteral}.
 	 * @param ctx the parse tree

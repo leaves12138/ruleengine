@@ -36,8 +36,7 @@ public class DbClassCondition extends ClassCondition {
         if (datasource.type() == Datasource.RMDB) {
             String selectSql = getSqlDynamic(symbolTable);
             results = datasource.select(selectSql, conClass);
-        }
-        else if (datasource.type() == Datasource.REDIS) {
+        } else if (datasource.type() == Datasource.REDIS) {
             return false;
         } else {
             return false;
@@ -59,7 +58,7 @@ public class DbClassCondition extends ClassCondition {
         this.datasourceName = datasourceName;
     }
 
-    private String getSqlDynamic(SymbolTable symbolTable){
+    private String getSqlDynamic(SymbolTable symbolTable) {
         return datasource.getSelectSql(conditionList, conClass, symbolTable);
     }
 }

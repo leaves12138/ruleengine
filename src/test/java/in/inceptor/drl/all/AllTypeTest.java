@@ -12,12 +12,18 @@ import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
+
 import org.junit.jupiter.api.extension.ExtendWith;
 import io.inceptor.asm.AUTOGENERATE.example.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ExtendWith(DrlTest.class)
+
 public class AllTypeTest {
     static private ObjectMapper objectMapper = new ObjectMapper();
+
+    private static Logger logger = LoggerFactory.getLogger(AllTypeTest.class);
 
     @Session({"file://${drls-root}/alltype.drl"})
     DrlSession session;

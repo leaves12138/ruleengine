@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(DrlTest.class)
 public class FileRuleFileTest {
 
-    @Session({"file:///home/transwarp/gitlab/inceptor-drools/src/test/resources/firemaster.drl",
-                "file:///home/transwarp/gitlab/inceptor-drools/src/test/resources/fireslave.drl"})
+    @Session({"file://${drls-root}/firemaster.drl",
+                "file://${drls-root}/fireslave.drl"})
     DrlSession session;
 
     @Test

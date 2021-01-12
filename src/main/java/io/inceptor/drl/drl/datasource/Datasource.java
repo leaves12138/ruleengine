@@ -51,7 +51,7 @@ public interface Datasource {
 
     Integer exist(String key);
 
-    Object sendCommand(Protocol.Command command, String ... args);
+    Object sendCommand(Protocol.Command command, String... args);
 
     // for kafka
     Future<RecordMetaData> putMsg(String topic, Integer partition, long timestamp, Object key, Object msg);

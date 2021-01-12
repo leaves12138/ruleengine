@@ -37,7 +37,7 @@ public class Rule {
 
     private boolean inited = false;
 
-    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources,ParsedDrlFile parsedDrlFile, DrlSession session) {
+    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session) {
         if (!inited) {
             this.session = session;
             this.parsedDrlFile = parsedDrlFile;
@@ -62,7 +62,7 @@ public class Rule {
         }
 
         if (next != null) {
-            next.init(list, dataSources,parsedDrlFile, session);
+            next.init(list, dataSources, parsedDrlFile, session);
         }
     }
 
@@ -98,8 +98,9 @@ public class Rule {
         drlFile.getDeclaredClasses().addAll(parsedDrlFile.getDeclaredClasses());
         List<DeclaredClass> ori = drlFile.getDeclaredClasses();
         List<DeclaredClass> des = parsedDrlFile.getDeclaredClasses();
-        outer:for (DeclaredClass d : des){
-            for (DeclaredClass o : ori){
+        outer:
+        for (DeclaredClass d : des) {
+            for (DeclaredClass o : ori) {
                 if (o.getJVMFullName().equals(d.getJVMFullName()))
                     continue outer;
             }

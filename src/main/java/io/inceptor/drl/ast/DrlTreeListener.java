@@ -215,9 +215,11 @@ public class DrlTreeListener extends DrlParserBaseListener {
             CompareCondition compareCondition = new CompareCondition();
             compareCondition.setIsLeftMethodCall(compareClauseContext.lm);
             if (compareClauseContext.lm) {
-                compareCondition.setLeft(compareClauseContext.methodCall().getText());
+                compareCondition.setLeft(compareClauseContext.jsonPath().getText());
             } else
-                compareCondition.setLeft(compareClauseContext.Identifier().getText());
+                compareCondition.setLeft(compareClauseContext.fieldName.getText());
+            if (compareClauseContext.symbole != null)
+                compareCondition.setSymbolName(compareClauseContext.symbole.getText());
             Value value = new Value();
             value.setType(getType(compareClauseContext.literal()));
             value.setValue(compareClauseContext.literal().getText());
@@ -230,9 +232,11 @@ public class DrlTreeListener extends DrlParserBaseListener {
             ContainCondition containCondition = new ContainCondition();
             containCondition.setIsLeftMethodCall(containClauseContext.lm);
             if (containClauseContext.lm) {
-                containCondition.setLeft(containClauseContext.methodCall().getText());
+                containCondition.setLeft(containClauseContext.jsonPath().getText());
             } else
-                containCondition.setLeft(containClauseContext.Identifier().getText());
+                containCondition.setLeft(containClauseContext.fieldName.getText());
+            if (containClauseContext.symbole != null)
+                containCondition.setSymbolName(containClauseContext.symbole.getText());
             containCondition.setContain(containClauseContext.CONTAIN().getText());
             List<Value> valueList = new ArrayList();
             for (DrlParser.LiteralContext literalContext : containClauseContext.literal()) {
@@ -243,7 +247,17 @@ public class DrlTreeListener extends DrlParserBaseListener {
             }
             containCondition.setRights(valueList);
             return containCondition;
-
+        } else if (ctx instanceof DrlParser.ExistsConditionContext) {
+            DrlParser.ExistsClauseContext existsClauseContext = ((DrlParser.ExistsConditionContext) ctx).existsClause();
+            ExistCondition existsCondition = new ExistCondition();
+            existsCondition.setIsLeftMethodCall(existsClauseContext.lm);
+            if (existsClauseContext.lm) {
+                existsCondition.setLeft(existsClauseContext.jsonPath().getText());
+            } else
+                existsCondition.setLeft(existsClauseContext.fieldName.getText());
+            if (existsClauseContext.symbole != null)
+                existsCondition.setSymbolName(existsClauseContext.symbole.getText());
+            return existsCondition;
         } else if (ctx instanceof DrlParser.ConditionSelfContext) {
             return getConditionFromCtx(((DrlParser.ConditionSelfContext) ctx).condition());
 

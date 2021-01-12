@@ -73,32 +73,32 @@ public abstract class AbstractDatasource implements Datasource {
 
 
     @Override
-    public Integer exist(String key){
+    public Integer exist(String key) {
         throw new CannotInvokeMethodException();
     }
 
     @Override
-    public Object sendCommand(Protocol.Command command, String ... args){
+    public Object sendCommand(Protocol.Command command, String... args) {
         throw new CannotInvokeMethodException();
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Integer partition, long timestamp, Object key, Object msg){
+    public Future<RecordMetaData> putMsg(String topic, Integer partition, long timestamp, Object key, Object msg) {
         throw new CannotInvokeMethodException();
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Integer partition, Object key, Object msg){
+    public Future<RecordMetaData> putMsg(String topic, Integer partition, Object key, Object msg) {
         throw new CannotInvokeMethodException();
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Object key, Object msg){
+    public Future<RecordMetaData> putMsg(String topic, Object key, Object msg) {
         throw new CannotInvokeMethodException();
     }
 
     @Override
-    public Future<RecordMetaData> putMsg(String topic, Object msg){
+    public Future<RecordMetaData> putMsg(String topic, Object msg) {
         throw new CannotInvokeMethodException();
     }
 }

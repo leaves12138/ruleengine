@@ -8,7 +8,7 @@ options {tokenVocab = DrlLexer;}
 
 file : pack importDecls declares rules ;
 
-pack : PACKAGE qualifiedName SEP;
+pack : PACKAGE qualifiedName SEP?;
 
 importDecls : (importDecl) * ;
 
@@ -60,13 +60,16 @@ conditions : (condition (',' condition)*)? ;
 condition
     : compareClause   #CompareCondition
     | containClause   #ContainCondition
+    | existsClause    #ExistsCondition
     | '(' condition ')' #ConditionSelf
     | left=condition op=(AndAnd|OrOr) right=condition #AndOrCondition
     ;
 
-compareClause returns[boolean lm]: (Identifier{$lm=false;}|methodCall{$lm=true;}) COMPARE literal ;
+compareClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) COMPARE literal ;
 
-containClause returns[boolean lm]: (Identifier{$lm=false;}|methodCall{$lm=true;}) CONTAIN '[' literal| (',' literal)* ']' ;
+containClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) CONTAIN '[' literal (',' literal)* ']' ;
+
+existsClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) EXISTS ;
 
 literal
     :   NUMBER                   #NumberBranch
@@ -80,6 +83,8 @@ literal
 methodCall
     :   Identifier('.' Identifier)* ( '(' (Identifier)* ')' ) ?
     ;
+jsonPath
+    :   Identifier ('[' NUMBER ']')* ('.' Identifier ('[' NUMBER ']')* )* ;
 
 booleanLiteral
     :   TRUE
@@ -92,7 +97,7 @@ codeline : LINE ;
 
 
 qualifiedName
-    :   Identifier ('.' Identifier)* (('.' '*')| ('[' NUMBER ']'))?
+    :   Identifier ('.' Identifier)* ('.' '*')?
     ;
 
 

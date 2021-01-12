@@ -39,7 +39,7 @@ public class DeclaredClass {
 
     private boolean inited = false;
 
-    public DeclaredClass(String location){
+    public DeclaredClass(String location) {
         this.location = location;
     }
 
@@ -172,11 +172,11 @@ public class DeclaredClass {
         return getJavaFullLocation() + className;
     }
 
-    public String getJVMFullLocation(){
+    public String getJVMFullLocation() {
         return jvmPrefix + location.replace(".", "/") + "/";
     }
 
-    public String getJavaFullLocation(){
+    public String getJavaFullLocation() {
         return javaPrefix + location + ".";
     }
 
@@ -318,13 +318,15 @@ public class DeclaredClass {
     }
 
     public static class DumpClassBytes {
-        private DumpClassBytes(){}
+        private DumpClassBytes() {
+        }
+
         public String name;
         public String packageName;
         public byte[] bytes;
     }
 
-    public DumpClassBytes dumpClass(){
+    public DumpClassBytes dumpClass() {
         ClassWriter classWriter = ClassWriterFactory.getClassWriter();
         generateConstructor(classWriter);
         classWriter.visit(V1_8, ACC_PUBLIC, getJVMFullName(), null, "java/lang/Object", new String[]{});

@@ -67,7 +67,7 @@ public class ObjectCreator<T> {
         return temp;
     }
 
-    public T getLastObject(){
+    public T getLastObject() {
         return temp;
     }
 

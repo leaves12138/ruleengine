@@ -22,7 +22,7 @@ public class RedisDatasource extends AbstractDatasource {
 
     private boolean inited = false;
 
-    public RedisDatasource(String name, String host, Integer port, String password){
+    public RedisDatasource(String name, String host, Integer port, String password) {
         this.name = name;
         this.host = host;
         this.port = port;
@@ -44,11 +44,11 @@ public class RedisDatasource extends AbstractDatasource {
     }
 
     @Override
-    public Object sendCommand(Protocol.Command command, String ... args){
+    public Object sendCommand(Protocol.Command command, String... args) {
         return jedis.sendCommand(command, args);
     }
 
-    public void close(){
+    public void close() {
         if (inited) {
             jedis.close();
         }

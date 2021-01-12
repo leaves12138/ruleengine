@@ -24,10 +24,14 @@ import static java.lang.System.out;
 import static java.lang.System.err;
 
 public class DrlTool {
-    static String VERSION = "1.0";
+    static String VERSION = "2.0";
 
     public static void info(String info) {
         out.println(ConsoleColors.GREEN + info + ConsoleColors.RESET);
+    }
+
+    public static void red (String msg){
+        out.println(ConsoleColors.RED_UNDERLINED + msg + ConsoleColors.RESET);
     }
 
     public static void err(String error) {
@@ -194,6 +198,9 @@ public class DrlTool {
                             }
 
                         }
+                        catch (ParseDrlRuntimeException e){
+                            throw new ParseDrlRuntimeException("in file \"" + child.getName() + "\" detected syntax error", e);
+                        }
                     }
                 }
             }
@@ -311,6 +318,8 @@ public class DrlTool {
 
     private void help() {
         info("\nWelcome To Transwarp Rule Engine Version " + DrlTool.VERSION);
+        red("usage: lsd [options] directory [directory ...]");
+        info("options:");
         for (Option o : optionDefs) {
             String name = o.name + (o.argType != OptionArgType.NONE ? " [arg]" : "");
             String s = String.format(" %-19s %s", name, o.description);

@@ -25,6 +25,8 @@ PACKAGE : 'package' ;
 
 IMPORT : 'import';
 
+EXISTS : 'exists';
+
 AndAnd: '&&' | 'and';
 
 OrOr: '||' | 'or';

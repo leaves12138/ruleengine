@@ -6,8 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="inceptor-drools" />
+        <module name="slipstream-drools" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="inceptor-drools" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

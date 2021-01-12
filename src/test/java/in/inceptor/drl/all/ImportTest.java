@@ -14,9 +14,9 @@ public class ImportTest {
     static private ObjectMapper objectMapper = new ObjectMapper();
 
 
-    @Session({"file:///home/transwarp/gitlab/inceptor-drools/src/test/resources/importmain.drl",
-            "file:///home/transwarp/gitlab/inceptor-drools/src/test/resources/importfollower.drl"})
-    @DrlDatasource({"file:///home/transwarp/gitlab/inceptor-drools/src/test/resources/persons.ds"})
+    @Session({"file://${drls-root}/importmain.drl",
+            "file://${drls-root}/importfollower.drl"})
+    @DrlDatasource({"file://${drls-root}/persons.ds"})
     DrlSession session2;
 
 

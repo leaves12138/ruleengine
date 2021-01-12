@@ -19,13 +19,12 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
     private List<Datasource> datasourceList;
 
 
-
-    @Override public List<Datasource> visitDeclares(DsParser.DeclaresContext ctx) {
+    @Override
+    public List<Datasource> visitDeclares(DsParser.DeclaresContext ctx) {
         datasourceList = new ArrayList<>();
 
         return visitChildren(ctx);
     }
-
 
 
     @Override
@@ -35,16 +34,16 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
         String name = ctx.Identifier().getText();
         String type = typeBranch.STRING().getText();
 
-        switch (type){
-            case "jdbc":{
+        switch (type) {
+            case "jdbc": {
                 datasourceList.add(getJdbcDatasource(name, ctx));
                 return datasourceList;
             }
-            case "redis":{
+            case "redis": {
                 datasourceList.add(getRedisDatasource(name, ctx));
                 return datasourceList;
             }
-            case "kafka":{
+            case "kafka": {
                 datasourceList.add(getKafkaDatasource(name, ctx));
                 return datasourceList;
             }
@@ -55,7 +54,7 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
 
     }
 
-    private Datasource getJdbcDatasource(String name, DsParser.DeclareContext ctx){
+    private Datasource getJdbcDatasource(String name, DsParser.DeclareContext ctx) {
 
         DsParser.URLBranchContext urlBranchContext = Optional.of(ctx.getRuleContext(DsParser.URLBranchContext.class, 0))
                 .orElseThrow(() -> new ParseDrlRuntimeException("url must exist in jdbc type datasource"));
@@ -66,7 +65,7 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
         return new JDBCDatasource(name, urlBranchContext.STRING().getText(), userNameBranchContext.STRING().getText(), passwordBranchContext.STRING().getText());
     }
 
-    private Datasource getRedisDatasource(String name, DsParser.DeclareContext ctx){
+    private Datasource getRedisDatasource(String name, DsParser.DeclareContext ctx) {
         DsParser.HostBranchContext hostBranchContext = ctx.getRuleContext(DsParser.HostBranchContext.class, 0);
         DsParser.PortBranchContext portBranchContext = ctx.getRuleContext(DsParser.PortBranchContext.class, 0);
         DsParser.PasswordBranchContext passwordBranchContext = ctx.getRuleContext(DsParser.PasswordBranchContext.class, 0);
@@ -83,12 +82,12 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
 
     }
 
-    private Datasource getKafkaDatasource(String name, DsParser.DeclareContext ctx){
+    private Datasource getKafkaDatasource(String name, DsParser.DeclareContext ctx) {
         Properties properties = new Properties();
         List<DsParser.UserDefineBranchContext> userDefineBranchContexts = ctx.getRuleContexts(DsParser.UserDefineBranchContext.class);
         if (userDefineBranchContexts == null)
             throw new ParseDrlRuntimeException("kafka datasource must have user defined properties");
-        for (DsParser.UserDefineBranchContext context : userDefineBranchContexts){
+        for (DsParser.UserDefineBranchContext context : userDefineBranchContexts) {
             String key = context.name.getText();
             Object value = context.value instanceof DrlParser.NumberBranchContext ? Integer.valueOf(context.value.getText()) : context.value.getText();
             properties.put(key, value);
