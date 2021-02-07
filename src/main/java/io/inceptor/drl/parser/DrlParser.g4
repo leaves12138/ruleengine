@@ -52,7 +52,7 @@ onerule : RULE ruleName=STRING WHEN whenClauses THEN codelines ENDMVEL ;
 whenClauses : (whenClause) * ;
 
 whenClause : ( symbole=Identifier ':')? className=Identifier '(' conditions ')' #fromStream
-           | ( symbole=Identifier ':')? className=Identifier '(' conditions ')' FROM dbName=Identifier #fromDs
+           | ( symbole=Identifier ':')? className=Identifier '(' conditions ')' FROM dbName=Identifier (LIMIT NUMBER)? #fromDs
            ;
 
 conditions : (condition (',' condition)*)? ;

@@ -1,7 +1,6 @@
 package io.inceptor.drl.drl.datasource.impl;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import io.inceptor.drl.annotation.DatasourceColumn;
 import io.inceptor.drl.drl.condition.Condition;
 import io.inceptor.drl.drl.datasource.AbstractDatasource;
 import io.inceptor.drl.drl.datasource.Datasource;
@@ -49,7 +48,7 @@ public class JDBCDatasource extends AbstractDatasource {
         druidDataSource.setUrl(url);
         druidDataSource.setUsername(userName);
         druidDataSource.setPassword(password);
-        druidDataSource.setMaxActive(10);
+        druidDataSource.setMaxActive(20);
         druidDataSource.setConnectionErrorRetryAttempts(10);
         try {
             druidDataSource.init();
@@ -80,9 +79,8 @@ public class JDBCDatasource extends AbstractDatasource {
 
     @Override
     public <M> List<M> getData(List<Condition> conditions, Class<M> mClass) {
-        try {
+        try(Connection connection = druidDataSource.getConnection()) {
             String sql = sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass));
-            Connection connection = druidDataSource.getConnection();
             ResultSet resultSet = getResult(sql, connection);
             List<M> results = ORM.produceTargetO(resultSet, JdbcResolvedClass.getResolve(mClass));
             connection.close();

@@ -189,6 +189,11 @@ public class DrlTreeListener extends DrlParserBaseListener {
         classCondition.setClassName(ctx.className.getText());
         classCondition.setConditionList(new ArrayList<>());
         classCondition.setDatasourceName(ctx.dbName.getText());
+
+        if (ctx.LIMIT() != null){
+            classCondition.setLimit(true);
+            classCondition.setLimitNum(ctx.NUMBER().getText());
+        }
         currentRule.getClassCondition().add(classCondition);
         currentClassCondition = classCondition;
     }

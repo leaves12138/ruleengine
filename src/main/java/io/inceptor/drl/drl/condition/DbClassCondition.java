@@ -16,6 +16,10 @@ public class DbClassCondition extends ClassCondition {
 
     protected String selectSql;
 
+    protected boolean limit;
+
+    protected String limitNum;
+
     @Override
     public void init(List<DeclaredClass> list, Map<String, Datasource> datasources) {
         super.init(list, datasources);
@@ -59,6 +63,16 @@ public class DbClassCondition extends ClassCondition {
     }
 
     private String getSqlDynamic(SymbolTable symbolTable) {
-        return datasource.getSelectSql(conditionList, conClass, symbolTable);
+        if (datasource.type() == Datasource.RMDB && limit)
+            return datasource.getSelectSql(conditionList, conClass, symbolTable) + " limit " + limitNum;
+        else return datasource.getSelectSql(conditionList, conClass, symbolTable);
+    }
+
+    public void setLimit(boolean b){
+        this.limit = b;
+    }
+
+    public void setLimitNum(String n){
+        this.limitNum = n;
     }
 }

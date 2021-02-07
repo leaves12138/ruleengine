@@ -6,7 +6,6 @@ import io.inceptor.drl.exceptions.CannotInvokeMethodException;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
 import redis.clients.jedis.Protocol;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.Future;
 

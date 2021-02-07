@@ -32,6 +32,7 @@ public class ImportTest {
             return;
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
     }
 }

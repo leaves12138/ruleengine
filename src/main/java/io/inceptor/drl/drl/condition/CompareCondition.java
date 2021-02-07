@@ -175,7 +175,7 @@ public class CompareCondition implements Condition {
     private Object getStaticRightValue() {
         try {
             if (JsonNode.class.isAssignableFrom(fieldClass))
-                return objectReader.readValue(convertJsonValue(right), JsonNode.class);
+                return objectReader.readValue(convertJsonValue(right));
             if (Time.class.isAssignableFrom(fieldClass))
                 return Time.valueOf(right.getValue());
             if (Timestamp.class.isAssignableFrom(fieldClass))

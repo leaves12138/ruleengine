@@ -2,9 +2,7 @@ package io.inceptor.drl.junit5;
 
 import io.inceptor.drl.Drools;
 import io.inceptor.drl.drl.datasource.Datasource;
-import io.inceptor.drl.drl.datasource.impl.JDBCDatasource;
 import io.inceptor.drl.junit5.annotation.DrlDatasource;
-import io.inceptor.drl.junit5.annotation.DrlFiles;
 import io.inceptor.drl.junit5.annotation.Session;
 import io.inceptor.drl.util.DrlSession;
 import io.inceptor.drl.util.DrlTool;
@@ -17,7 +15,6 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class DrlTest implements Extension, TestInstancePostProcessor {
 

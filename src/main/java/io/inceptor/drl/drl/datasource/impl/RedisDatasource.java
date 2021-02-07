@@ -1,8 +1,6 @@
 package io.inceptor.drl.drl.datasource.impl;
 
 import io.inceptor.drl.drl.datasource.AbstractDatasource;
-import io.inceptor.drl.drl.datasource.Datasource;
-import io.inceptor.drl.exceptions.CannotInvokeMethodException;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Protocol;
 

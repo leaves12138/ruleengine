@@ -38,6 +38,8 @@ DOTDRL : '.drl' ;
 FROM : 'from';
 //symbols
 
+LIMIT : 'limit';
+
 SEP : ';' ;
 
 DOT : '.' ;

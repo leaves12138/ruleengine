@@ -26,20 +26,18 @@ end
 
 rule "rule one"
     when
-        $p : Person( (name == "Jimmy" && hight > 150) || (hight < 120 && name == "carry") )
-        $l : Test( age < $p.getHight ) from persons
+        $p : Person( (name == "Jimmy" && hight > 150) || (hight < 170 && name == "Sally") )
+        $l : Test( age < $p.getHight ) from persons limit 3
     then
-        System.out.println("rule one starting ----------------------------------");
-        System.out.println("this is Jimmy");
-        System.out.println($p.getName()+" is not null");
-        System.out.println($l.get(0).getAge());
-        System.out.println("rule one finishing ---------------------------------");
+        System.out.println("follower rule one start");
+        System.out.println("now name is " + $p.getName());
+        System.out.println("total get " + $l.size() + " records from ds");
 end
 
 
 rule "test hight"
     when
-        $p : Person(hight > 160)
+        $p : Person(hight >= 160)
         $q : Person(name == $p.getName)
     then
         System.out.println("test hight");

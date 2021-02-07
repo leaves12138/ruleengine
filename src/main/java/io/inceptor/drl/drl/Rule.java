@@ -2,13 +2,9 @@ package io.inceptor.drl.drl;
 
 import io.inceptor.drl.drl.action.Action;
 import io.inceptor.drl.drl.condition.ClassCondition;
-import io.inceptor.drl.drl.condition.DbClassCondition;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.util.DrlSession;
-import org.hibernate.Session;
-import org.mvel2.integration.VariableResolverFactory;
-import org.mvel2.integration.impl.CachedMapVariableResolverFactory;
 
 import java.util.ArrayList;
 import java.util.List;

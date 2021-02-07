@@ -5,8 +5,6 @@ import io.inceptor.drl.drl.symboltable.SymbolTable;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
 import redis.clients.jedis.Protocol;
 
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -54,11 +52,11 @@ public interface Datasource {
     Object sendCommand(Protocol.Command command, String... args);
 
     // for kafka
-    Future<RecordMetaData> putMsg(String topic, Integer partition, long timestamp, Object key, Object msg);
+    Future putMsg(String topic, Integer partition, long timestamp, Object key, Object msg);
 
-    Future<RecordMetaData> putMsg(String topic, Integer partition, Object key, Object msg);
+    Future putMsg(String topic, Integer partition, Object key, Object msg);
 
-    Future<RecordMetaData> putMsg(String topic, Object key, Object msg);
+    Future putMsg(String topic, Object key, Object msg);
 
-    Future<RecordMetaData> putMsg(String topic, Object msg);
+    Future putMsg(String topic, Object msg);
 }

@@ -1,14 +1,11 @@
 package io.inceptor.drl.drl.datasource.impl;
 
 import io.inceptor.drl.drl.datasource.AbstractDatasource;
-import io.inceptor.drl.exceptions.CannotInvokeMethodException;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.Future;
 

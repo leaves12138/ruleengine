@@ -3,7 +3,6 @@ package io.inceptor.drl.drl.condition;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
-import io.inceptor.drl.util.DrlSession;
 
 import java.util.List;
 import java.util.Map;

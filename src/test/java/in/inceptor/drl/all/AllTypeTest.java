@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ExtendWith(DrlTest.class)
-
 public class AllTypeTest {
     static private ObjectMapper objectMapper = new ObjectMapper();
 
