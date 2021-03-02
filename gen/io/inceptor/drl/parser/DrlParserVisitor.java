@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DrlParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DrlParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -34,6 +34,18 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDeclares(DrlParser.DeclaresContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#global}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGlobal(DrlParser.GlobalContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#glbcodelines}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGlbcodelines(DrlParser.GlbcodelinesContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#rules}.
 	 * @param ctx the parse tree

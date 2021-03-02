@@ -4,6 +4,7 @@ import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -33,12 +34,12 @@ public class DbClassCondition extends ClassCondition {
     }
 
     @Override
-    public boolean evaluate(Object o, SymbolTable symbolTable) {
+    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
 
 
         List<Object> results;
         if (datasource.type() == Datasource.RMDB) {
-            String selectSql = getSqlDynamic(symbolTable);
+            String selectSql = getSqlDynamic(variableResolverFactory);
             results = datasource.select(selectSql, conClass);
         } else if (datasource.type() == Datasource.REDIS) {
             return false;
@@ -49,7 +50,8 @@ public class DbClassCondition extends ClassCondition {
             return false;
 
         if (symbolName != null) {
-            symbolTable.put(symbolName, results);
+            variableResolverFactory.createVariable(symbolName, results);
+//            symbolTable.put(symbolName, results);
         }
         return true;
     }
@@ -62,10 +64,10 @@ public class DbClassCondition extends ClassCondition {
         this.datasourceName = datasourceName;
     }
 
-    private String getSqlDynamic(SymbolTable symbolTable) {
+    private String getSqlDynamic(VariableResolverFactory variableResolverFactory) {
         if (datasource.type() == Datasource.RMDB && limit)
-            return datasource.getSelectSql(conditionList, conClass, symbolTable) + " limit " + limitNum;
-        else return datasource.getSelectSql(conditionList, conClass, symbolTable);
+            return datasource.getSelectSql(conditionList, conClass, variableResolverFactory) + " limit " + limitNum;
+        else return datasource.getSelectSql(conditionList, conClass, variableResolverFactory);
     }
 
     public void setLimit(boolean b){

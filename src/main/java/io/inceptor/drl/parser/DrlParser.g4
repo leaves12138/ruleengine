@@ -6,13 +6,17 @@ parser grammar DrlParser;
 
 options {tokenVocab = DrlLexer;}
 
-file : pack importDecls declares rules ;
+file : pack importDecls declares global ? rules ;
 
 pack : PACKAGE qualifiedName SEP?;
 
 importDecls : (importDecl) * ;
 
 declares : (declare) * ;
+
+global : GLOBAL glbcodelines ENDMVEL ;
+
+glbcodelines : codeline *;
 
 rules : (onerule) + ;
 
@@ -99,5 +103,3 @@ codeline : LINE ;
 qualifiedName
     :   Identifier ('.' Identifier)* ('.' '*')?
     ;
-
-

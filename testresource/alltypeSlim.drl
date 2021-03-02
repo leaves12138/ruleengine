@@ -1,0 +1,39 @@
+package example;
+
+@Stream
+declare SlipType
+    @TableColumn("a1")
+    a1 : Long
+    @TableColumn("a2")
+    a2 : Short
+    @TableColumn("a3")
+    a3 : Double
+    @TableColumn("a5")
+    a5 : Time
+    @TableColumn("6")
+    a6 : Timestamp
+    @TableColumn("a7")
+    a7 : Json
+    @TableColumn("a8")
+    a8 : Byte
+    @TableColumn("a9")
+    a9 : BigDecimal
+    @TableColumn("a10")
+    a10: Float
+    @TableColumn("a11")
+    a11: String
+    @TableColumn("a12")
+    a12: Integer
+    @TableColumn("a13")
+    a13: String
+end
+
+rule "test all type"
+    when
+        $t : SlipType(a1 == 1, a2 == 2, a3 == 3.0, a5 == "00:00:00", a6 == "1997-05-17 00:00:00",
+                  a7.a.b == "\"b\"", a8 == "8", a8 == "8", a9 == 9, a10 == 10.0, a11 == "11char40                                ", a12 == 12,
+                  a13 == "13string")
+    then
+        System.out.println("rule starting");
+        thisrule.fireRuleFile("example/alltypeSlim2");
+end

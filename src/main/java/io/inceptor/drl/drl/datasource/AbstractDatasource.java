@@ -4,9 +4,11 @@ import io.inceptor.drl.drl.condition.Condition;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.CannotInvokeMethodException;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
+import org.mvel2.integration.VariableResolverFactory;
 import redis.clients.jedis.Protocol;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 public abstract class AbstractDatasource implements Datasource {
@@ -66,7 +68,7 @@ public abstract class AbstractDatasource implements Datasource {
     }
 
     @Override
-    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, SymbolTable symbolTable) {
+    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory) {
         throw new CannotInvokeMethodException();
     }
 
@@ -78,6 +80,51 @@ public abstract class AbstractDatasource implements Datasource {
 
     @Override
     public Object sendCommand(Protocol.Command command, String... args) {
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Object sendCommand(String key, Protocol.Command command, String... args){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Long hset(String key, String field, String value){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Long hset(byte[] key, byte[] field, byte[] value){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public String hget(String key, String field){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public byte[] hget(byte[] key, byte[] field){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Long hdel(String key, String... field){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Long hdel(byte[] key, byte[]... field){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Set<String> hkeys(String key){
+        throw new CannotInvokeMethodException();
+    }
+
+    @Override
+    public Set<byte[]> hkeys(byte[] key){
         throw new CannotInvokeMethodException();
     }
 

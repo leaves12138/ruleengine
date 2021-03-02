@@ -113,6 +113,10 @@ public class DrlTreeListener extends DrlParserBaseListener {
         currentClass.getAnnotations().add(annotation);
     }
 
+    @Override public void enterGlobal(DrlParser.GlobalContext ctx) {
+        this.parsedDrlFile.setGlobal(ctx.glbcodelines().getText());
+    }
+
     @Override
     public void enterFields(DrlParser.FieldsContext ctx) {
         currentDeclaredClass.setFields(new ArrayList<DeclaredClass.Field>(ctx.children.size()));

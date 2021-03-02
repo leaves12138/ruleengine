@@ -1,7 +1,7 @@
 package io.inceptor.drl.exceptions;
 
 public class CannotInvokeMethodException extends RuntimeException {
-    static String msg = "can't invoke this methos";
+    static String msg = "can't invoke this method here";
 
     public CannotInvokeMethodException() {
         super(msg);

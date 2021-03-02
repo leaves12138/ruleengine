@@ -5,6 +5,10 @@ import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
 import io.inceptor.drl.exceptions.DrlFileNoFoundException;
 import io.inceptor.drl.util.DrlSession;
+import org.mvel2.MVEL;
+import org.mvel2.ParserConfiguration;
+import org.mvel2.integration.impl.ClassImportResolverFactory;
+import org.mvel2.integration.impl.MapVariableResolverFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,19 +22,26 @@ public class ParsedDrlFile {
     private String[] drlImports;
     private String[] datasourceImports;
     private List<DeclaredClass> declaredClasses;
+    private String global;
     private Map<String, Datasource> datasources = new HashMap();
     private Rule ruleHead;
     private Rule ruleTail;
+    private MapVariableResolverFactory globalResolverFactory;
 
     private boolean inited = false;
 
-    public static SymbolTable staticImpots = new SymbolTable();
+    public static ClassImportResolverFactory classImportResolverFactory
+            = new ClassImportResolverFactory(new ParserConfiguration(), null, false);
 
     public void init(DrlSession session) {
         this.session = session;
 
         if (inited)
             return;
+        globalResolverFactory = new MapVariableResolverFactory();
+
+        globalResolverFactory.setNextFactory(classImportResolverFactory);
+
         initJavaImport(javaImoprts);
 
         initImportDatasources(datasourceImports);
@@ -40,8 +51,11 @@ public class ParsedDrlFile {
         for (DeclaredClass declaredClass : declaredClasses) {
             declaredClass.init();
         }
+
+        initGlobal();
+
         if (ruleHead != null) {
-            ruleHead.init(declaredClasses, datasources, this, session);
+            ruleHead.init(declaredClasses, datasources, this, session, globalResolverFactory);
         }
 
         inited = true;
@@ -57,7 +71,7 @@ public class ParsedDrlFile {
         for (String javaImport : javaImports) {
             try {
                 Class c = Thread.currentThread().getContextClassLoader().loadClass(javaImport);
-                staticImpots.put(c.getSimpleName(), c);
+                classImportResolverFactory.addClass(c);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException("can't find class " + javaImport + " by current classloader", e);
             }
@@ -76,7 +90,7 @@ public class ParsedDrlFile {
         }
     }
 
-    private void initImportDrlFiles(String[] drlImports) {
+     private void initImportDrlFiles(String[] drlImports) {
         if (drlImports == null)
             return;
         for (String drl : drlImports) {
@@ -89,6 +103,10 @@ public class ParsedDrlFile {
             if (impDrl != null)
                 importDrlFileInternal(impDrl);
         }
+    }
+
+    private void initGlobal() {
+        MVEL.eval(global, globalResolverFactory);
     }
 
     private Datasource searchDatasource(String dsStr) {
@@ -189,5 +207,9 @@ public class ParsedDrlFile {
 
     public void setDatasources(Map<String, Datasource> datasources) {
         this.datasources = datasources;
+    }
+
+    public void setGlobal(String global) {
+        this.global = global;
     }
 }

@@ -7,6 +7,7 @@ import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -100,15 +101,16 @@ public class CompareCondition implements Condition {
         return fieldClass.getMethod(Condition.METHOD_COMPARETO, Object.class);
     }
 
-    public boolean evaluate(Object o, SymbolTable symbolTable) {
+    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
         try {
             Object left = getter.invoke(o);
             if (left == null)
                 return false;
             left = getLeftValue(left);
-            if (invokeCompare(left, symbolTable)) {
+            if (invokeCompare(left, variableResolverFactory)) {
                 if (symbolName != null)
-                    symbolTable.put(symbolName, left);
+                    variableResolverFactory.createVariable(symbolName, left);
+//                    symbolTable.put(symbolName, left);
                 return true;
             }
             return false;
@@ -117,33 +119,33 @@ public class CompareCondition implements Condition {
         }
     }
 
-    private boolean invokeCompare(Object left, SymbolTable symbolTable) throws Exception {
+    private boolean invokeCompare(Object left, VariableResolverFactory variableResolverFactory) throws Exception {
         switch (symbol) {
             case Condition.EQUAL: {
-                return (Boolean) compare.invoke(left, getValue(symbolTable));
+                return (Boolean) compare.invoke(left, getValue(variableResolverFactory));
             }
             case Condition.NOTEUQAL: {
-                return !(Boolean) compare.invoke(left, getValue(symbolTable));
+                return !(Boolean) compare.invoke(left, getValue(variableResolverFactory));
             }
             case Condition.GREATER: {
                 if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getValue(symbolTable)) > 0;
-                return (Integer) compare.invoke(left, getValue(symbolTable)) > 0;
+                    return (Integer) compare.invoke(null, left, getValue(variableResolverFactory)) > 0;
+                return (Integer) compare.invoke(left, getValue(variableResolverFactory)) > 0;
             }
             case Condition.LESS: {
                 if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getValue(symbolTable)) < 0;
-                return (Integer) compare.invoke(left, getValue(symbolTable)) < 0;
+                    return (Integer) compare.invoke(null, left, getValue(variableResolverFactory)) < 0;
+                return (Integer) compare.invoke(left, getValue(variableResolverFactory)) < 0;
             }
             case Condition.GREATEREQUAL: {
                 if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getValue(symbolTable)) >= 0;
-                return (Integer) compare.invoke(left, getValue(symbolTable)) >= 0;
+                    return (Integer) compare.invoke(null, left, getValue(variableResolverFactory)) >= 0;
+                return (Integer) compare.invoke(left, getValue(variableResolverFactory)) >= 0;
             }
             case Condition.LESSQUAL: {
                 if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getValue(symbolTable)) <= 0;
-                return (Integer) compare.invoke(left, getValue(symbolTable)) <= 0;
+                    return (Integer) compare.invoke(null, left, getValue(variableResolverFactory)) <= 0;
+                return (Integer) compare.invoke(left, getValue(variableResolverFactory)) <= 0;
             }
             default: {
                 throw new RuntimeException("can't match symbol " + symbol);
@@ -151,10 +153,10 @@ public class CompareCondition implements Condition {
         }
     }
 
-    private Object getValue(SymbolTable symbolTable) {
+    private Object getValue(VariableResolverFactory variableResolverFactory) {
         if (!isRightMethodCall)
             return value;
-        return MVEL.executeExpression(expression, symbolTable);
+        return MVEL.executeExpression(expression, variableResolverFactory);
     }
 
     private Object getLeftValue(Object left) {
@@ -203,8 +205,8 @@ public class CompareCondition implements Condition {
         return left + symbol + right.getValue();
     }
 
-    public String getSql(SymbolTable symbolTable) {
-        return left + symbol + getValue(symbolTable);
+    public String getSql(VariableResolverFactory variableResolverFactory) {
+        return left + symbol + getValue(variableResolverFactory);
     }
 
     public String getterName() {

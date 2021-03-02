@@ -8,6 +8,7 @@ import org.hibernate.sql.Delete;
 import org.hibernate.sql.Insert;
 import org.hibernate.sql.Select;
 import org.hibernate.sql.Update;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.util.List;
 
@@ -78,11 +79,11 @@ public class SQLGenerator {
         return select.toStatementString();
     }
 
-    public String generateSelectSql(List<Condition> conditions, JdbcResolvedClass c, SymbolTable symbolTable) {
+    public String generateSelectSql(List<Condition> conditions, JdbcResolvedClass c, VariableResolverFactory variableResolverFactory) {
         Select select = new Select(dialect);
         select.setSelectClause("*");
         if (conditions != null) {
-            String whereClause = conditions.stream().map(condition -> condition.getSql(symbolTable)).reduce((s1, s2) -> s1 + s2).get();
+            String whereClause = conditions.stream().map(condition -> condition.getSql(variableResolverFactory)).reduce((s1, s2) -> s1 + s2).get();
             select.setWhereClause(whereClause);
         }
         select.setFromClause(c.getTableName());

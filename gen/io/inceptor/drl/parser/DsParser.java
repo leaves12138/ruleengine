@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -11,35 +11,36 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class DsParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.8", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.9.1", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		DECLARE=1, END=2, URL=3, USERNAME=4, PASSWORD=5, TYPE=6, Colon=7, PORT=8, 
-		HOST=9, Identifier=10, STRING=11, NUMBER=12, WS=13, BlockComment=14, LineComment=15;
+		DECLARE=1, END=2, URL=3, TRUE=4, FALSE=5, USERNAME=6, PASSWORD=7, TYPE=8, 
+		Colon=9, PORT=10, HOST=11, CLUSTERIPS=12, Identifier=13, STRING=14, NUMBER=15, 
+		WS=16, BlockComment=17, LineComment=18, ISCLUSTER=19;
 	public static final int
-		RULE_declares = 0, RULE_declare = 1, RULE_field = 2;
+		RULE_declares = 0, RULE_declare = 1, RULE_field = 2, RULE_booleanLiteral = 3;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"declares", "declare", "field"
+			"declares", "declare", "field", "booleanLiteral"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'declare'", "'end'", "'url'", "'username'", "'password'", "'type'", 
-			"':'", "'port'", "'host'"
+			null, "'declare'", "'end'", "'url'", "'true'", "'false'", "'username'", 
+			"'password'", "'type'", "':'", "'port'", "'host'", "'cluster-addresses'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "DECLARE", "END", "URL", "USERNAME", "PASSWORD", "TYPE", "Colon", 
-			"PORT", "HOST", "Identifier", "STRING", "NUMBER", "WS", "BlockComment", 
-			"LineComment"
+			null, "DECLARE", "END", "URL", "TRUE", "FALSE", "USERNAME", "PASSWORD", 
+			"TYPE", "Colon", "PORT", "HOST", "CLUSTERIPS", "Identifier", "STRING", 
+			"NUMBER", "WS", "BlockComment", "LineComment", "ISCLUSTER"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -126,17 +127,17 @@ public class DsParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(7); 
+			setState(9); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(6);
+				setState(8);
 				declare();
 				}
 				}
-				setState(9); 
+				setState(11); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==DECLARE );
@@ -189,25 +190,25 @@ public class DsParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(11);
+			setState(13);
 			match(DECLARE);
-			setState(12);
+			setState(14);
 			match(Identifier);
-			setState(14); 
+			setState(16); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(13);
+				setState(15);
 				field();
 				}
 				}
-				setState(16); 
+				setState(18); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << URL) | (1L << USERNAME) | (1L << PASSWORD) | (1L << TYPE) | (1L << PORT) | (1L << HOST) | (1L << STRING))) != 0) );
-			setState(18);
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << URL) | (1L << USERNAME) | (1L << PASSWORD) | (1L << TYPE) | (1L << PORT) | (1L << HOST) | (1L << CLUSTERIPS) | (1L << STRING) | (1L << ISCLUSTER))) != 0) );
+			setState(20);
 			match(END);
 			}
 		}
@@ -252,6 +253,27 @@ public class DsParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
+	public static class IsClusterBranchContext extends FieldContext {
+		public TerminalNode ISCLUSTER() { return getToken(DsParser.ISCLUSTER, 0); }
+		public TerminalNode Colon() { return getToken(DsParser.Colon, 0); }
+		public BooleanLiteralContext booleanLiteral() {
+			return getRuleContext(BooleanLiteralContext.class,0);
+		}
+		public IsClusterBranchContext(FieldContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof DsParserListener ) ((DsParserListener)listener).enterIsClusterBranch(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof DsParserListener ) ((DsParserListener)listener).exitIsClusterBranch(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof DsParserVisitor ) return ((DsParserVisitor<? extends T>)visitor).visitIsClusterBranch(this);
+			else return visitor.visitChildren(this);
+		}
+	}
 	public static class URLBranchContext extends FieldContext {
 		public TerminalNode URL() { return getToken(DsParser.URL, 0); }
 		public TerminalNode Colon() { return getToken(DsParser.Colon, 0); }
@@ -287,6 +309,25 @@ public class DsParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof DsParserVisitor ) return ((DsParserVisitor<? extends T>)visitor).visitHostBranch(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ClusterIpsBranchContext extends FieldContext {
+		public TerminalNode CLUSTERIPS() { return getToken(DsParser.CLUSTERIPS, 0); }
+		public TerminalNode Colon() { return getToken(DsParser.Colon, 0); }
+		public TerminalNode STRING() { return getToken(DsParser.STRING, 0); }
+		public ClusterIpsBranchContext(FieldContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof DsParserListener ) ((DsParserListener)listener).enterClusterIpsBranch(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof DsParserListener ) ((DsParserListener)listener).exitClusterIpsBranch(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof DsParserVisitor ) return ((DsParserVisitor<? extends T>)visitor).visitClusterIpsBranch(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -376,18 +417,18 @@ public class DsParser extends Parser {
 		FieldContext _localctx = new FieldContext(_ctx, getState());
 		enterRule(_localctx, 4, RULE_field);
 		try {
-			setState(44);
+			setState(52);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case TYPE:
 				_localctx = new TypeBranchContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(20);
-				match(TYPE);
-				setState(21);
-				match(Colon);
 				setState(22);
+				match(TYPE);
+				setState(23);
+				match(Colon);
+				setState(24);
 				match(STRING);
 				}
 				break;
@@ -395,11 +436,11 @@ public class DsParser extends Parser {
 				_localctx = new URLBranchContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(23);
-				match(URL);
-				setState(24);
-				match(Colon);
 				setState(25);
+				match(URL);
+				setState(26);
+				match(Colon);
+				setState(27);
 				match(STRING);
 				}
 				break;
@@ -407,11 +448,11 @@ public class DsParser extends Parser {
 				_localctx = new UserNameBranchContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(26);
-				match(USERNAME);
-				setState(27);
-				match(Colon);
 				setState(28);
+				match(USERNAME);
+				setState(29);
+				match(Colon);
+				setState(30);
 				match(STRING);
 				}
 				break;
@@ -419,11 +460,11 @@ public class DsParser extends Parser {
 				_localctx = new PasswordBranchContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(29);
-				match(PASSWORD);
-				setState(30);
-				match(Colon);
 				setState(31);
+				match(PASSWORD);
+				setState(32);
+				match(Colon);
+				setState(33);
 				match(STRING);
 				}
 				break;
@@ -431,11 +472,11 @@ public class DsParser extends Parser {
 				_localctx = new PortBranchContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(32);
-				match(PORT);
-				setState(33);
-				match(Colon);
 				setState(34);
+				match(PORT);
+				setState(35);
+				match(Colon);
+				setState(36);
 				match(NUMBER);
 				}
 				break;
@@ -443,34 +484,58 @@ public class DsParser extends Parser {
 				_localctx = new HostBranchContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
-				setState(35);
-				match(HOST);
-				setState(36);
-				match(Colon);
 				setState(37);
+				match(HOST);
+				setState(38);
+				match(Colon);
+				setState(39);
+				match(STRING);
+				}
+				break;
+			case ISCLUSTER:
+				_localctx = new IsClusterBranchContext(_localctx);
+				enterOuterAlt(_localctx, 7);
+				{
+				setState(40);
+				match(ISCLUSTER);
+				setState(41);
+				match(Colon);
+				setState(42);
+				booleanLiteral();
+				}
+				break;
+			case CLUSTERIPS:
+				_localctx = new ClusterIpsBranchContext(_localctx);
+				enterOuterAlt(_localctx, 8);
+				{
+				setState(43);
+				match(CLUSTERIPS);
+				setState(44);
+				match(Colon);
+				setState(45);
 				match(STRING);
 				}
 				break;
 			case STRING:
 				_localctx = new UserDefineBranchContext(_localctx);
-				enterOuterAlt(_localctx, 7);
+				enterOuterAlt(_localctx, 9);
 				{
-				setState(38);
+				setState(46);
 				((UserDefineBranchContext)_localctx).name = match(STRING);
-				setState(39);
+				setState(47);
 				match(Colon);
-				setState(42);
+				setState(50);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case STRING:
 					{
-					setState(40);
+					setState(48);
 					((UserDefineBranchContext)_localctx).value = match(STRING);
 					}
 					break;
 				case NUMBER:
 					{
-					setState(41);
+					setState(49);
 					((UserDefineBranchContext)_localctx).value = match(NUMBER);
 					}
 					break;
@@ -494,21 +559,76 @@ public class DsParser extends Parser {
 		return _localctx;
 	}
 
+	public static class BooleanLiteralContext extends ParserRuleContext {
+		public TerminalNode TRUE() { return getToken(DsParser.TRUE, 0); }
+		public TerminalNode FALSE() { return getToken(DsParser.FALSE, 0); }
+		public BooleanLiteralContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_booleanLiteral; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof DsParserListener ) ((DsParserListener)listener).enterBooleanLiteral(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof DsParserListener ) ((DsParserListener)listener).exitBooleanLiteral(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof DsParserVisitor ) return ((DsParserVisitor<? extends T>)visitor).visitBooleanLiteral(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final BooleanLiteralContext booleanLiteral() throws RecognitionException {
+		BooleanLiteralContext _localctx = new BooleanLiteralContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_booleanLiteral);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(54);
+			_la = _input.LA(1);
+			if ( !(_la==TRUE || _la==FALSE) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\21\61\4\2\t\2\4\3"+
-		"\t\3\4\4\t\4\3\2\6\2\n\n\2\r\2\16\2\13\3\3\3\3\3\3\6\3\21\n\3\r\3\16\3"+
-		"\22\3\3\3\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3"+
-		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4-\n\4\5\4/\n\4\3\4\2\2\5\2\4\6\2\2\2"+
-		"\66\2\t\3\2\2\2\4\r\3\2\2\2\6.\3\2\2\2\b\n\5\4\3\2\t\b\3\2\2\2\n\13\3"+
-		"\2\2\2\13\t\3\2\2\2\13\f\3\2\2\2\f\3\3\2\2\2\r\16\7\3\2\2\16\20\7\f\2"+
-		"\2\17\21\5\6\4\2\20\17\3\2\2\2\21\22\3\2\2\2\22\20\3\2\2\2\22\23\3\2\2"+
-		"\2\23\24\3\2\2\2\24\25\7\4\2\2\25\5\3\2\2\2\26\27\7\b\2\2\27\30\7\t\2"+
-		"\2\30/\7\r\2\2\31\32\7\5\2\2\32\33\7\t\2\2\33/\7\r\2\2\34\35\7\6\2\2\35"+
-		"\36\7\t\2\2\36/\7\r\2\2\37 \7\7\2\2 !\7\t\2\2!/\7\r\2\2\"#\7\n\2\2#$\7"+
-		"\t\2\2$/\7\16\2\2%&\7\13\2\2&\'\7\t\2\2\'/\7\r\2\2()\7\r\2\2),\7\t\2\2"+
-		"*-\7\r\2\2+-\7\16\2\2,*\3\2\2\2,+\3\2\2\2-/\3\2\2\2.\26\3\2\2\2.\31\3"+
-		"\2\2\2.\34\3\2\2\2.\37\3\2\2\2.\"\3\2\2\2.%\3\2\2\2.(\3\2\2\2/\7\3\2\2"+
-		"\2\6\13\22,.";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\25;\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\3\2\6\2\f\n\2\r\2\16\2\r\3\3\3\3\3\3\6\3\23\n\3\r\3"+
+		"\16\3\24\3\3\3\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3"+
+		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\65\n\4"+
+		"\5\4\67\n\4\3\5\3\5\3\5\2\2\6\2\4\6\b\2\3\3\2\6\7\2A\2\13\3\2\2\2\4\17"+
+		"\3\2\2\2\6\66\3\2\2\2\b8\3\2\2\2\n\f\5\4\3\2\13\n\3\2\2\2\f\r\3\2\2\2"+
+		"\r\13\3\2\2\2\r\16\3\2\2\2\16\3\3\2\2\2\17\20\7\3\2\2\20\22\7\17\2\2\21"+
+		"\23\5\6\4\2\22\21\3\2\2\2\23\24\3\2\2\2\24\22\3\2\2\2\24\25\3\2\2\2\25"+
+		"\26\3\2\2\2\26\27\7\4\2\2\27\5\3\2\2\2\30\31\7\n\2\2\31\32\7\13\2\2\32"+
+		"\67\7\20\2\2\33\34\7\5\2\2\34\35\7\13\2\2\35\67\7\20\2\2\36\37\7\b\2\2"+
+		"\37 \7\13\2\2 \67\7\20\2\2!\"\7\t\2\2\"#\7\13\2\2#\67\7\20\2\2$%\7\f\2"+
+		"\2%&\7\13\2\2&\67\7\21\2\2\'(\7\r\2\2()\7\13\2\2)\67\7\20\2\2*+\7\25\2"+
+		"\2+,\7\13\2\2,\67\5\b\5\2-.\7\16\2\2./\7\13\2\2/\67\7\20\2\2\60\61\7\20"+
+		"\2\2\61\64\7\13\2\2\62\65\7\20\2\2\63\65\7\21\2\2\64\62\3\2\2\2\64\63"+
+		"\3\2\2\2\65\67\3\2\2\2\66\30\3\2\2\2\66\33\3\2\2\2\66\36\3\2\2\2\66!\3"+
+		"\2\2\2\66$\3\2\2\2\66\'\3\2\2\2\66*\3\2\2\2\66-\3\2\2\2\66\60\3\2\2\2"+
+		"\67\7\3\2\2\289\t\2\2\29\t\3\2\2\2\6\r\24\64\66";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

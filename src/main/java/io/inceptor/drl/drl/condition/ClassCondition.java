@@ -3,6 +3,7 @@ package io.inceptor.drl.drl.condition;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -27,20 +28,21 @@ public class ClassCondition {
         throw new RuntimeException("can't find " + className + " in declared classes");
     }
 
-    public boolean evaluate(Object o, SymbolTable symbolTable) {
+    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
         if (o == null)
             return false;
         if (!o.getClass().getSimpleName().equals(className)) {
             return false;
         }
         for (Condition condition : conditionList) {
-            if (!condition.evaluate(o, symbolTable)) {
+            if (!condition.evaluate(o, variableResolverFactory)) {
                 return false;
             }
         }
 
         if (symbolName != null) {
-            symbolTable.put(symbolName, o);
+//            symbolTable.put(symbolName, o);
+            variableResolverFactory.createVariable(symbolName, o);
         }
         return true;
     }

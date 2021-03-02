@@ -37,3 +37,36 @@ rule "test all type"
         System.out.println("rule starting");
         thisrule.fireRuleFile("example/alltypeSlim2");
 end
+
+@Stream
+declare Tonghua
+    @TableColumn("imsi")
+    imsi : String
+    @TableColumn("imei")
+    imei : String
+    @TableColumn("msisd")
+    msisd: String
+    @TableColumn("mnc")
+    mnc : String
+    @TableColumn("lac")
+    lac : String
+    @TableColumn("ci")
+    ci : String
+end
+
+rule "tong hua rule"
+    when
+    $l : Tonghua($imsi: imsi, $imei: imei, $msisd: msisd, $mnc: mnc, $lac: lac, $ci : ci)
+    then
+        key1 = redis.get("imsi", $imsi) //check if this imsi in watch
+        if (key1 == true) { // if it's in watch
+            in-watch = redis.hget("location", $mnc+$lac+$ci) //check if its location in watch
+            ori-location = redis.hget("ori-location", $imsi+$imei+$msisd) // get it's original location
+            ori-in-watch = redis.hget("location", ori-location) //check if its original location in watch
+            if (!ori-in-watch && in-watch){ //this one enter in-watch area from a non-in-watch area
+                kafka.putMsg("warn", "user enter in watch area") //send the warning
+            }
+
+            redis.hset("ori-location",$mnc+$lac+$ci, $imsi+$imei+$msisd) //reflesh the leatest location
+        }
+end

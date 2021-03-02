@@ -12,6 +12,13 @@ field : TYPE             ':'       STRING                            #TypeBranch
        | PASSWORD        ':'       STRING                            #PasswordBranch
        | PORT            ':'       NUMBER                            #PortBranch
        | HOST            ':'       STRING                            #HostBranch
+       | ISCLUSTER       ':'       booleanLiteral                    #IsClusterBranch
+       | CLUSTERIPS      ':'       STRING                            #ClusterIpsBranch
        | name=STRING     ':'       (value=STRING|value=NUMBER)       #UserDefineBranch
        ;
+
+booleanLiteral
+    :   TRUE
+    |   FALSE
+    ;
 

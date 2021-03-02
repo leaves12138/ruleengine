@@ -1,0 +1,5 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+CLASSPATH=`ls ${DIR}/../lib| awk  'BEGIN{a = "";} {if ( NR == 1) {a = "${DIR}/../lib/" $0;} else { a = a ":${DIR}/../lib/"  $0}} END{print a}'`
+java -cp $CLASSPATH io.inceptor.drl.util.DrlTool $*

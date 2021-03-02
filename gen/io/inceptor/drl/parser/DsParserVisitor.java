@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -65,10 +65,30 @@ public interface DsParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitHostBranch(DsParser.HostBranchContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code IsClusterBranch}
+	 * labeled alternative in {@link DsParser#field}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIsClusterBranch(DsParser.IsClusterBranchContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ClusterIpsBranch}
+	 * labeled alternative in {@link DsParser#field}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitClusterIpsBranch(DsParser.ClusterIpsBranchContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code UserDefineBranch}
 	 * labeled alternative in {@link DsParser#field}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitUserDefineBranch(DsParser.UserDefineBranchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DsParser#booleanLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBooleanLiteral(DsParser.BooleanLiteralContext ctx);
 }

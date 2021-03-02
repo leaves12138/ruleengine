@@ -5,6 +5,9 @@ import io.inceptor.drl.drl.condition.ClassCondition;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.util.DrlSession;
+import org.mvel2.integration.VariableResolverFactory;
+import org.mvel2.integration.impl.ClassImportResolverFactory;
+import org.mvel2.integration.impl.MapVariableResolverFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,8 @@ public class Rule {
 
     private SymbolTable symbolTable;
 
+    private MapVariableResolverFactory ruleMapVariableResovlverFactory;
+
     private List<ClassCondition> classConditions;
 
     private Action action;
@@ -33,46 +38,51 @@ public class Rule {
 
     private boolean inited = false;
 
-    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session) {
+    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session, VariableResolverFactory global) {
         if (!inited) {
             this.session = session;
             this.parsedDrlFile = parsedDrlFile;
 
             symbolTable = new SymbolTable();
+
+            ruleMapVariableResovlverFactory = new MapVariableResolverFactory(symbolTable);
+
             tempNexts = new ArrayList<>(3);
 
-            symbolTable.put("thisrule", this);
+
+            ruleMapVariableResovlverFactory.createVariable("thisrule", this);
+
             for (Datasource datasource : dataSources.values()) {
-                symbolTable.put(datasource.getName(), datasource);
+                ruleMapVariableResovlverFactory.createVariable(datasource.getName(), datasource);
             }
 
-            symbolTable.putAll(ParsedDrlFile.staticImpots);
+            ruleMapVariableResovlverFactory.setNextFactory(global);
 
             for (ClassCondition classCondition : classConditions) {
                 classCondition.init(list, dataSources);
             }
 
-            action.compile(ParsedDrlFile.staticImpots);
+            action.compile(ParsedDrlFile.classImportResolverFactory.getImportedClasses());
 
             inited = true;
         }
 
         if (next != null) {
-            next.init(list, dataSources, parsedDrlFile, session);
+            next.init(list, dataSources, parsedDrlFile, session, global);
         }
     }
 
     public void accept(Object o) {
         boolean pass = true;
         for (ClassCondition classCondition : classConditions) {
-            if (!classCondition.evaluate(o, symbolTable)) {
+            if (!classCondition.evaluate(o, ruleMapVariableResovlverFactory)) {
                 pass = false;
                 break;
             }
         }
 
         if (pass)
-            action.invoke(symbolTable);
+            action.invoke(ruleMapVariableResovlverFactory);
 
         for (Rule tempNext : tempNexts)
             tempNext.accept(o);
@@ -81,6 +91,7 @@ public class Rule {
             next.accept(o);
 
         tempNexts.clear();
+//        ruleMapVariableResovlverFactory.clear();
         tempStop = false;
     }
 

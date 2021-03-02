@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DrlParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DrlParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -47,6 +47,26 @@ public interface DrlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDeclares(DrlParser.DeclaresContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#global}.
+	 * @param ctx the parse tree
+	 */
+	void enterGlobal(DrlParser.GlobalContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#global}.
+	 * @param ctx the parse tree
+	 */
+	void exitGlobal(DrlParser.GlobalContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#glbcodelines}.
+	 * @param ctx the parse tree
+	 */
+	void enterGlbcodelines(DrlParser.GlbcodelinesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#glbcodelines}.
+	 * @param ctx the parse tree
+	 */
+	void exitGlbcodelines(DrlParser.GlbcodelinesContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link DrlParser#rules}.
 	 * @param ctx the parse tree

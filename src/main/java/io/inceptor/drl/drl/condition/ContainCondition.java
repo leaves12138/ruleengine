@@ -12,6 +12,7 @@ import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -112,13 +113,15 @@ public class ContainCondition implements Condition {
 
     }
 
-    public boolean evaluate(Object o, SymbolTable symbolTable) {
+    @Override
+    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
         try {
             Object left = getter.invoke(o);
             left = getLeftValue(left);
-            if (invokeContain(left, symbolTable)) {
+            if (invokeContain(left, variableResolverFactory)) {
                 if (symbolName != null)
-                    symbolTable.put(symbolName, left);
+                    variableResolverFactory.createVariable(symbolName, left);
+//                    symbolTable.put(symbolName, left);
                 return true;
             }
             return false;
@@ -145,13 +148,13 @@ public class ContainCondition implements Condition {
         }
     }
 
-    private boolean invokeContain(Object left, SymbolTable symbolTable) {
+    private boolean invokeContain(Object left, VariableResolverFactory variableResolverFactory) {
         switch (contain) {
             case Condition.IN: {
                 if (values.contains(left))
                     return true;
                 for (Serializable method : methodCalls.values()) {
-                    if (left.equals(MVEL.executeExpression(method)))
+                    if (left.equals(MVEL.executeExpression(method, variableResolverFactory)))
                         return true;
                 }
             }
@@ -159,7 +162,7 @@ public class ContainCondition implements Condition {
                 if (values.contains(left))
                     return false;
                 for (Serializable method : methodCalls.values()) {
-                    if (left.equals(MVEL.executeExpression(method)))
+                    if (left.equals(MVEL.executeExpression(method, variableResolverFactory)))
                         return true;
                 }
             }
@@ -172,8 +175,8 @@ public class ContainCondition implements Condition {
         return left + " " + contain + " " + "[" + rights.stream().map(value -> value.getValue()).reduce(null, (s1, s2) -> s1 == null ? s2 : s1 + "," + s2);
     }
 
-    public String getSql(SymbolTable symbolTable) {
-        return left + " " + contain + " " + "[" + rights.stream().map(value -> getValue(value, symbolTable)).reduce(null, (s1, s2) -> s1 == null ? s2 : s1 + "," + s2);
+    public String getSql(VariableResolverFactory variableResolverFactory) {
+        return left + " " + contain + " " + "[" + rights.stream().map(value -> getValue(value, variableResolverFactory)).reduce(null, (s1, s2) -> s1 == null ? s2 : s1 + "," + s2);
     }
 
     public String getLeft() {
@@ -204,10 +207,10 @@ public class ContainCondition implements Condition {
         this.rights = rights;
     }
 
-    private Object getValue(Value value, SymbolTable symbolTable) {
+    private Object getValue(Value value, VariableResolverFactory variableResolverFactory) {
         if (!(value.getType() == Value.Type.METHODCALL))
             return value.getValue();
-        return MVEL.executeExpression(methodCalls.get(value.getValue()), symbolTable);
+        return MVEL.executeExpression(methodCalls.get(value.getValue()), variableResolverFactory);
     }
 
     public boolean getIsLeftMethodCall() {

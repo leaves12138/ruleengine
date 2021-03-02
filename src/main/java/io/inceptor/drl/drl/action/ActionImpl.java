@@ -2,8 +2,10 @@ package io.inceptor.drl.drl.action;
 
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import org.mvel2.MVEL;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class ActionImpl implements Action {
     private String code;
@@ -18,11 +20,11 @@ public class ActionImpl implements Action {
         this.code = code;
     }
 
-    public void compile(SymbolTable symbolTable) {
-        compiledCode = MVEL.compileExpression(code, symbolTable);
+    public void compile(Map<String, Object> imports) {
+        compiledCode = MVEL.compileExpression(code, imports);
     }
 
-    public void invoke(SymbolTable symbolTable) {
-        MVEL.executeExpression(compiledCode, symbolTable);
+    public void invoke(VariableResolverFactory variableResolverFactory) {
+        MVEL.executeExpression(compiledCode, variableResolverFactory);
     }
 }

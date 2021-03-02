@@ -116,7 +116,7 @@ public class DeclaredClass {
         Class c = drlClassLoader.defineClass(getJavaFullName(), classWriter.toByteArray());
         instance = c;
 
-        ParsedDrlFile.staticImpots.put(className, instance);
+        ParsedDrlFile.classImportResolverFactory.addClass(instance);
 
         return instance;
     }

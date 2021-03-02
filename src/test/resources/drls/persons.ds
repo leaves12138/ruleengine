@@ -16,6 +16,7 @@ end
 //    type      :      "redis"
 //    host      :      "localhost"
 //    port      :      6379
+      isCluster :      true
 //end
 
 //declare kafka_1

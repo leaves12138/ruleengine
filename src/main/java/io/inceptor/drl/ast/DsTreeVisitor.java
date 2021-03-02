@@ -8,14 +8,16 @@ import io.inceptor.drl.exceptions.ParseDrlRuntimeException;
 import io.inceptor.drl.parser.DrlParser;
 import io.inceptor.drl.parser.DsParser;
 import io.inceptor.drl.parser.DsParserBaseVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.HostAndPort;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 //thread not safe
 public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
+    private static Logger log = LoggerFactory.getLogger(DsTreeVisitor.class);
+
     private List<Datasource> datasourceList;
 
 
@@ -69,6 +71,8 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
         DsParser.HostBranchContext hostBranchContext = ctx.getRuleContext(DsParser.HostBranchContext.class, 0);
         DsParser.PortBranchContext portBranchContext = ctx.getRuleContext(DsParser.PortBranchContext.class, 0);
         DsParser.PasswordBranchContext passwordBranchContext = ctx.getRuleContext(DsParser.PasswordBranchContext.class, 0);
+        DsParser.IsClusterBranchContext isClusterBranchContext = ctx.getRuleContext(DsParser.IsClusterBranchContext.class, 0);
+        DsParser.ClusterIpsBranchContext clusterIpsBranchContext = ctx.getRuleContext(DsParser.ClusterIpsBranchContext.class, 0);
         String host = RedisDatasource.Default_host;
         if (hostBranchContext != null)
             host = hostBranchContext.STRING().getText();
@@ -78,8 +82,45 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
         String password = null;
         if (passwordBranchContext != null)
             password = passwordBranchContext.STRING().getText();
-        return new RedisDatasource(name, host, port, password);
+        boolean isCluster = false;
+        if (isClusterBranchContext != null)
+            isCluster = Boolean.valueOf(isClusterBranchContext.ISCLUSTER().getText());
 
+
+        if (isCluster == true) {
+            Set<HostAndPort> hostAndPortSet;
+            if (clusterIpsBranchContext != null)
+                hostAndPortSet = getHostAndPorts(clusterIpsBranchContext.CLUSTERIPS().getText());
+            else {
+                hostAndPortSet = new HashSet<>();
+                hostAndPortSet.add(new HostAndPort(host, port));
+            }
+            return new RedisDatasource(name, password, hostAndPortSet);
+        } else {
+            return new RedisDatasource(name, host, port, password);
+        }
+    }
+
+    private Set<HostAndPort> getHostAndPorts(String hostAndPorts) {
+        Set<HostAndPort> set = new HashSet<>();
+        String[] items = hostAndPorts.split(",");
+        for (String item : items) {
+            String[] hostAndPort = item.split(":");
+            if (hostAndPort.length ==  0) {
+                continue;
+            }
+            String host = hostAndPort[0];
+            Integer port = RedisDatasource.Default_port;
+            if (hostAndPort.length > 1) {
+                try {
+                    port = Integer.valueOf(hostAndPort[1]);
+                } catch (NumberFormatException e){
+                    log.error("can't format port in redis ds config, use default port 6379", e);
+                }
+            }
+            set.add(new HostAndPort(host, port));
+        }
+        return set;
     }
 
     private Datasource getKafkaDatasource(String name, DsParser.DeclareContext ctx) {

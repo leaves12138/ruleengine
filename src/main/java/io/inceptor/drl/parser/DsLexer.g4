@@ -7,6 +7,10 @@ END : 'end' ;
 
 URL : 'url' ;
 
+TRUE : 'true' ;
+
+FALSE : 'false' ;
+
 USERNAME : 'username' ;
 
 PASSWORD : 'password' ;
@@ -18,6 +22,8 @@ Colon : ':';
 PORT : 'port' ;
 
 HOST : 'host' ;
+
+CLUSTERIPS : 'cluster-addresses' ;
 
 Identifier
     :   Letter (Letter|Digit)*

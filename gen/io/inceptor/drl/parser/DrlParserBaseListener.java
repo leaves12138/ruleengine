@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DrlParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DrlParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -59,6 +59,30 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDeclares(DrlParser.DeclaresContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGlobal(DrlParser.GlobalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGlobal(DrlParser.GlobalContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterGlbcodelines(DrlParser.GlbcodelinesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitGlbcodelines(DrlParser.GlbcodelinesContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

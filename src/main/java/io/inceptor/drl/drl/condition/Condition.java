@@ -1,16 +1,17 @@
 package io.inceptor.drl.drl.condition;
 
 import io.inceptor.drl.drl.symboltable.SymbolTable;
+import org.mvel2.integration.VariableResolverFactory;
 
 public interface Condition {
     //    String getClassName();
-    boolean evaluate(Object o, SymbolTable symbolTable);
+    boolean evaluate(Object o, VariableResolverFactory variableResolverFactory);
 
     void init(Class c);
 
     String getSql();
 
-    String getSql(SymbolTable symbolTable);
+    String getSql(VariableResolverFactory variableResolverFactory);
 
     String EQUAL = "==";
 

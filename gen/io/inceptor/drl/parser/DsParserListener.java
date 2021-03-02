@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -100,6 +100,30 @@ public interface DsParserListener extends ParseTreeListener {
 	 */
 	void exitHostBranch(DsParser.HostBranchContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code IsClusterBranch}
+	 * labeled alternative in {@link DsParser#field}.
+	 * @param ctx the parse tree
+	 */
+	void enterIsClusterBranch(DsParser.IsClusterBranchContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IsClusterBranch}
+	 * labeled alternative in {@link DsParser#field}.
+	 * @param ctx the parse tree
+	 */
+	void exitIsClusterBranch(DsParser.IsClusterBranchContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ClusterIpsBranch}
+	 * labeled alternative in {@link DsParser#field}.
+	 * @param ctx the parse tree
+	 */
+	void enterClusterIpsBranch(DsParser.ClusterIpsBranchContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ClusterIpsBranch}
+	 * labeled alternative in {@link DsParser#field}.
+	 * @param ctx the parse tree
+	 */
+	void exitClusterIpsBranch(DsParser.ClusterIpsBranchContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code UserDefineBranch}
 	 * labeled alternative in {@link DsParser#field}.
 	 * @param ctx the parse tree
@@ -111,4 +135,14 @@ public interface DsParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitUserDefineBranch(DsParser.UserDefineBranchContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DsParser#booleanLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterBooleanLiteral(DsParser.BooleanLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DsParser#booleanLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitBooleanLiteral(DsParser.BooleanLiteralContext ctx);
 }

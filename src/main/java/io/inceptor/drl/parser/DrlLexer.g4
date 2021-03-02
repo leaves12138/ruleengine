@@ -21,6 +21,8 @@ WHEN : 'when' ;
 
 THEN : 'then'   -> mode(MVEL) ;
 
+GLOBAL : 'global' -> mode(MVEL) ;
+
 PACKAGE : 'package' ;
 
 IMPORT : 'import';

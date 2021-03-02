@@ -1,11 +1,14 @@
 package io.inceptor.drl.drl.datasource;
 
 import io.inceptor.drl.drl.condition.Condition;
+import io.inceptor.drl.drl.condition.Value;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
+import org.mvel2.integration.VariableResolverFactory;
 import redis.clients.jedis.Protocol;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 public interface Datasource {
@@ -43,13 +46,32 @@ public interface Datasource {
 
     <M> String getSelectSql(List<Condition> conditions, Class<M> mClass);
 
-    <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, SymbolTable symbolTable);
+    <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory);
 
     // for redis
 
     Integer exist(String key);
 
     Object sendCommand(Protocol.Command command, String... args);
+
+    Object sendCommand(String key, Protocol.Command command, String... args);
+
+    Long hset(String key, String field, String value);
+
+    Long hset(byte[] key, byte[] field, byte[] value);
+
+    String hget(String key, String field);
+
+    byte[] hget(byte[] key, byte[] field);
+
+    Long hdel(String key, String... field);
+
+    Long hdel(byte[] key, byte[]... field);
+
+    Set<String> hkeys(String key);
+
+    Set<byte[]> hkeys(byte[] key);
+
 
     // for kafka
     Future putMsg(String topic, Integer partition, long timestamp, Object key, Object msg);

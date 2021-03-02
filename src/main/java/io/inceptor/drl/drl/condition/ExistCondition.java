@@ -7,6 +7,7 @@ import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -26,7 +27,7 @@ public class ExistCondition implements Condition {
     private LeftMethodType leftMethodType;
 
     @Override
-    public boolean evaluate(Object o, SymbolTable symbolTable) {
+    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
         try {
             Object left = getter.invoke(o);
             if (left == null)
@@ -34,7 +35,8 @@ public class ExistCondition implements Condition {
             left = getLeftValue(left);
             if (left != null) {
                 if (symbolName != null)
-                    symbolTable.put(symbolName, left);
+//                    symbolTable.put(symbolName, left);
+                    variableResolverFactory.createVariable(symbolName, left);
                 return true;
             }
             return false;
@@ -78,7 +80,7 @@ public class ExistCondition implements Condition {
     }
 
     @Override
-    public String getSql(SymbolTable symbolTable) {
+    public String getSql(VariableResolverFactory variableResolverFactory) {
         return left + " is not null";
     }
 

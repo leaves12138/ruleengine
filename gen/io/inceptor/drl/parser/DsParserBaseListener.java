@@ -1,4 +1,4 @@
-// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.8
+// Generated from /home/transwarp/gitlab/inceptor-drools/src/main/java/io/inceptor/drl/parser/DsParser.g4 by ANTLR 4.9.1
 package io.inceptor.drl.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -112,6 +112,30 @@ public class DsParserBaseListener implements DsParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIsClusterBranch(DsParser.IsClusterBranchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIsClusterBranch(DsParser.IsClusterBranchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterClusterIpsBranch(DsParser.ClusterIpsBranchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitClusterIpsBranch(DsParser.ClusterIpsBranchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterUserDefineBranch(DsParser.UserDefineBranchContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -119,6 +143,18 @@ public class DsParserBaseListener implements DsParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitUserDefineBranch(DsParser.UserDefineBranchContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBooleanLiteral(DsParser.BooleanLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBooleanLiteral(DsParser.BooleanLiteralContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

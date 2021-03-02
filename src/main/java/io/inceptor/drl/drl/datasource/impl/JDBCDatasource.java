@@ -10,6 +10,7 @@ import io.inceptor.drl.util.orm.ORM;
 import io.inceptor.drl.util.orm.JdbcResolvedClass;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.MySQLDialect;
+import org.mvel2.integration.VariableResolverFactory;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -225,8 +226,8 @@ public class JDBCDatasource extends AbstractDatasource {
     }
 
     @Override
-    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, SymbolTable symbolTable) {
-        return sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass), symbolTable);
+    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory) {
+        return sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass), variableResolverFactory);
     }
 
 
