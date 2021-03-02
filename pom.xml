@@ -94,14 +94,7 @@
             <version>2.5.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>project</groupId>
-            <artifactId>project</artifactId>
-            <version>project</version>
-            <scope>system</scope>
-            <type>test-jar</type>
-            <systemPath>${project.basedir}/genjar/pojos.jar</systemPath>
-        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

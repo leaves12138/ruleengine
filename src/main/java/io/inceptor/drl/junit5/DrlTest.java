@@ -77,42 +77,6 @@ public class DrlTest implements Extension, TestInstancePostProcessor {
                     }
                 }
             }
-//            String[] dses;
-//            if (drlDatasource != null && (dses = drlDatasource.value()) != null) {
-//                for (String ds : dses) {
-//                    Map<String, String> map = new HashMap(8);
-//                    String[] pairs = ds.split(",");
-//                    for (String pair : pairs) {
-//                        try {
-//                            Matcher matcher = pattern.matcher(pair);
-//                            String key = matcher.group(1);
-//                            String value = matcher.group(2);
-//                            map.put(key, value);
-//                        } catch (Exception e) {
-//
-//                        }
-//                    }
-//                    if (!(map.containsKey("type")))
-//                        continue;
-//                    String type = map.get("type");
-//                    switch (type) {
-//                        case "jdbc": {
-//                            String name = map.get("name");
-//                            String url = map.get("url");
-//                            String userName = map.get("userName");
-//                            String password = map.get("password");
-//                            if (name == null && url == null && userName == null && password == null)
-//                                throw new RuntimeException("jdbc resource is not complete, (name, url, userName, password) need to be offered");
-//                            Datasource datasource = new JDBCDatasource(name, url, userName, password);
-//                            session.addDs(datasource);
-//                            break;
-//                        }
-//                        default: {
-//                            throw new RuntimeException("don't support this type now");
-//                        }
-//                    }
-//                }
-//            }
             field.setAccessible(true);
             field.set(o, session);
         }

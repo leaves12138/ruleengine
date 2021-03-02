@@ -23,6 +23,8 @@ PORT : 'port' ;
 
 HOST : 'host' ;
 
+ISCLUSTER : 'isCluster' ;
+
 CLUSTERIPS : 'cluster-addresses' ;
 
 Identifier

@@ -84,7 +84,7 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
             password = passwordBranchContext.STRING().getText();
         boolean isCluster = false;
         if (isClusterBranchContext != null)
-            isCluster = Boolean.valueOf(isClusterBranchContext.ISCLUSTER().getText());
+            isCluster = Boolean.valueOf(isClusterBranchContext.booleanLiteral().getText());
 
 
         if (isCluster == true) {

@@ -18,8 +18,8 @@ public class DsParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		DECLARE=1, END=2, URL=3, TRUE=4, FALSE=5, USERNAME=6, PASSWORD=7, TYPE=8, 
-		Colon=9, PORT=10, HOST=11, CLUSTERIPS=12, Identifier=13, STRING=14, NUMBER=15, 
-		WS=16, BlockComment=17, LineComment=18, ISCLUSTER=19;
+		Colon=9, PORT=10, HOST=11, ISCLUSTER=12, CLUSTERIPS=13, Identifier=14, 
+		STRING=15, NUMBER=16, WS=17, BlockComment=18, LineComment=19;
 	public static final int
 		RULE_declares = 0, RULE_declare = 1, RULE_field = 2, RULE_booleanLiteral = 3;
 	private static String[] makeRuleNames() {
@@ -32,15 +32,15 @@ public class DsParser extends Parser {
 	private static String[] makeLiteralNames() {
 		return new String[] {
 			null, "'declare'", "'end'", "'url'", "'true'", "'false'", "'username'", 
-			"'password'", "'type'", "':'", "'port'", "'host'", "'cluster-addresses'"
+			"'password'", "'type'", "':'", "'port'", "'host'", "'isCluster'", "'cluster-addresses'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "DECLARE", "END", "URL", "TRUE", "FALSE", "USERNAME", "PASSWORD", 
-			"TYPE", "Colon", "PORT", "HOST", "CLUSTERIPS", "Identifier", "STRING", 
-			"NUMBER", "WS", "BlockComment", "LineComment", "ISCLUSTER"
+			"TYPE", "Colon", "PORT", "HOST", "ISCLUSTER", "CLUSTERIPS", "Identifier", 
+			"STRING", "NUMBER", "WS", "BlockComment", "LineComment"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -207,7 +207,7 @@ public class DsParser extends Parser {
 				setState(18); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << URL) | (1L << USERNAME) | (1L << PASSWORD) | (1L << TYPE) | (1L << PORT) | (1L << HOST) | (1L << CLUSTERIPS) | (1L << STRING) | (1L << ISCLUSTER))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << URL) | (1L << USERNAME) | (1L << PASSWORD) | (1L << TYPE) | (1L << PORT) | (1L << HOST) | (1L << ISCLUSTER) | (1L << CLUSTERIPS) | (1L << STRING))) != 0) );
 			setState(20);
 			match(END);
 			}
@@ -618,14 +618,14 @@ public class DsParser extends Parser {
 		"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\65\n\4"+
 		"\5\4\67\n\4\3\5\3\5\3\5\2\2\6\2\4\6\b\2\3\3\2\6\7\2A\2\13\3\2\2\2\4\17"+
 		"\3\2\2\2\6\66\3\2\2\2\b8\3\2\2\2\n\f\5\4\3\2\13\n\3\2\2\2\f\r\3\2\2\2"+
-		"\r\13\3\2\2\2\r\16\3\2\2\2\16\3\3\2\2\2\17\20\7\3\2\2\20\22\7\17\2\2\21"+
+		"\r\13\3\2\2\2\r\16\3\2\2\2\16\3\3\2\2\2\17\20\7\3\2\2\20\22\7\20\2\2\21"+
 		"\23\5\6\4\2\22\21\3\2\2\2\23\24\3\2\2\2\24\22\3\2\2\2\24\25\3\2\2\2\25"+
 		"\26\3\2\2\2\26\27\7\4\2\2\27\5\3\2\2\2\30\31\7\n\2\2\31\32\7\13\2\2\32"+
-		"\67\7\20\2\2\33\34\7\5\2\2\34\35\7\13\2\2\35\67\7\20\2\2\36\37\7\b\2\2"+
-		"\37 \7\13\2\2 \67\7\20\2\2!\"\7\t\2\2\"#\7\13\2\2#\67\7\20\2\2$%\7\f\2"+
-		"\2%&\7\13\2\2&\67\7\21\2\2\'(\7\r\2\2()\7\13\2\2)\67\7\20\2\2*+\7\25\2"+
-		"\2+,\7\13\2\2,\67\5\b\5\2-.\7\16\2\2./\7\13\2\2/\67\7\20\2\2\60\61\7\20"+
-		"\2\2\61\64\7\13\2\2\62\65\7\20\2\2\63\65\7\21\2\2\64\62\3\2\2\2\64\63"+
+		"\67\7\21\2\2\33\34\7\5\2\2\34\35\7\13\2\2\35\67\7\21\2\2\36\37\7\b\2\2"+
+		"\37 \7\13\2\2 \67\7\21\2\2!\"\7\t\2\2\"#\7\13\2\2#\67\7\21\2\2$%\7\f\2"+
+		"\2%&\7\13\2\2&\67\7\22\2\2\'(\7\r\2\2()\7\13\2\2)\67\7\21\2\2*+\7\16\2"+
+		"\2+,\7\13\2\2,\67\5\b\5\2-.\7\17\2\2./\7\13\2\2/\67\7\21\2\2\60\61\7\21"+
+		"\2\2\61\64\7\13\2\2\62\65\7\21\2\2\63\65\7\22\2\2\64\62\3\2\2\2\64\63"+
 		"\3\2\2\2\65\67\3\2\2\2\66\30\3\2\2\2\66\33\3\2\2\2\66\36\3\2\2\2\66!\3"+
 		"\2\2\2\66$\3\2\2\2\66\'\3\2\2\2\66*\3\2\2\2\66-\3\2\2\2\66\60\3\2\2\2"+
 		"\67\7\3\2\2\289\t\2\2\29\t\3\2\2\2\6\r\24\64\66";
