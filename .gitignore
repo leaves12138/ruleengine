@@ -3,3 +3,6 @@ target/*
 dependency-reduced-pom.xml
 lib/
 .idea*
+*.interp
+*.tokens
+src/main/java/io/inceptor/drl/parser/gen/
