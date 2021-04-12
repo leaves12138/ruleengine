@@ -73,7 +73,7 @@ compareClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifi
 
 containClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) CONTAIN '[' literal (',' literal)* ']' ;
 
-existsClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) EXISTS ;
+existsClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;});
 
 literal
     :   NUMBER                   #NumberBranch

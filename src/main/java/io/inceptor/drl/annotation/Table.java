@@ -6,5 +6,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Table {
-    String value();
+    String value() default "";
+
+    String select() default "";
 }

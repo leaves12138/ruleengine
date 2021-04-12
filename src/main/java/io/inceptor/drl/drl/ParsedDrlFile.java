@@ -5,14 +5,13 @@ import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
 import io.inceptor.drl.exceptions.DrlFileNoFoundException;
 import io.inceptor.drl.util.DrlSession;
+import io.inceptor.drl.util.DrlUtils;
 import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;
 import org.mvel2.integration.impl.ClassImportResolverFactory;
 import org.mvel2.integration.impl.MapVariableResolverFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ParsedDrlFile {
     private DrlSession session;
@@ -29,9 +28,14 @@ public class ParsedDrlFile {
     private MapVariableResolverFactory globalResolverFactory;
 
     private boolean inited = false;
+    private Set<String> removedRules = new HashSet<>(10);
 
     public static ClassImportResolverFactory classImportResolverFactory
             = new ClassImportResolverFactory(new ParserConfiguration(), null, false);
+
+    static {
+        classImportResolverFactory.addClass(DrlUtils.class);
+    }
 
     public void init(DrlSession session) {
         this.session = session;
@@ -63,6 +67,14 @@ public class ParsedDrlFile {
 
     public boolean isInited() {
         return inited;
+    }
+
+    public boolean shouldIInvoke(Rule rule) {
+        return !removedRules.contains(rule.getName());
+    }
+
+    public boolean removeOnce(String ruleName) {
+        return removedRules.add(ruleName);
     }
 
     private void initJavaImport(String[] javaImports) {
@@ -127,6 +139,8 @@ public class ParsedDrlFile {
     }
 
     public void accept(Object o) {
+        removedRules.clear();
+
         if (ruleHead != null) {
             ruleHead.accept(o);
         }

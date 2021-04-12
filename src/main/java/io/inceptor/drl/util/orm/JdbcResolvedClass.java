@@ -19,6 +19,7 @@ public class JdbcResolvedClass<T> {
         if (table == null)
             resolveRuntimeException();
         tableName = table.value();
+        select = table.select();
         Field[] fields = c.getDeclaredFields();
         for (Field field : fields) {
             try {
@@ -59,6 +60,8 @@ public class JdbcResolvedClass<T> {
     private Map<String, Method> setterMap = new HashMap(14);
     private Map<String, String> columnNames = new HashMap(14);
     private Class<T> instance;
+
+    private String select = null;
 
     public static JdbcResolvedClass getResolve(Class c) {
         if (cache.containsKey(c))
@@ -150,5 +153,9 @@ public class JdbcResolvedClass<T> {
 
     public void setColumns(List<String> columns) {
         this.columns = columns;
+    }
+
+    public String getSelect() {
+        return select;
     }
 }

@@ -117,6 +117,9 @@ public class DrlSession {
 
     public boolean put(Object o) {
         try {
+            while (objectQueue.size() > 10000) {
+                Thread.sleep(100);
+            }
             objectQueue.put(o);
         } catch (InterruptedException e) {
             return false;

@@ -108,7 +108,10 @@ public class DrlTool {
     }
 
     public static void makeJarFromDrl(List<String> drlPaths, String location, String jarName) throws IOException {
-        FileOutputStream fileOutputStream = new FileOutputStream(new File(location, jarName));
+        File file = new File(location, jarName);
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
         try (JarOutputStream jarOutputStream = new JarOutputStream(fileOutputStream)) {
             for (String drlPath : drlPaths) {
                 File dir = new File(drlPath);
@@ -152,6 +155,9 @@ public class DrlTool {
         File file = new File(location, jarName);
         if (file.exists())
             file.delete();
+        if (!file.getParentFile().exists())
+            file.getParentFile().mkdirs();
+
         try (JarOutputStream jarOutputStream = new JarOutputStream(new FileOutputStream(file))) {
             for (String drlPath : drlPaths) {
                 File drlDrl = new File(drlPath);

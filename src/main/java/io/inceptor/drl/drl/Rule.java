@@ -49,7 +49,6 @@ public class Rule {
 
             tempNexts = new ArrayList<>(3);
 
-
             ruleMapVariableResovlverFactory.createVariable("thisrule", this);
 
             for (Datasource datasource : dataSources.values()) {
@@ -73,26 +72,35 @@ public class Rule {
     }
 
     public void accept(Object o) {
-        boolean pass = true;
-        for (ClassCondition classCondition : classConditions) {
-            if (!classCondition.evaluate(o, ruleMapVariableResovlverFactory)) {
-                pass = false;
-                break;
+        if (shouldIInvoke()) {
+            VariableResolverFactory fame = new MapVariableResolverFactory();
+            fame.setNextFactory(ruleMapVariableResovlverFactory);
+            boolean pass = true;
+            for (ClassCondition classCondition : classConditions) {
+                if (!classCondition.evaluate(o, fame)) {
+                    pass = false;
+                    break;
+                }
             }
+
+            if (pass)
+                action.invoke(fame);
+
+            for (Rule tempNext : tempNexts)
+                tempNext.accept(o);
         }
 
-        if (pass)
-            action.invoke(ruleMapVariableResovlverFactory);
-
-        for (Rule tempNext : tempNexts)
-            tempNext.accept(o);
-
-        if (next != null && !tempStop)
+        if (next != null && !tempStop) {
             next.accept(o);
+        }
 
         tempNexts.clear();
-//        ruleMapVariableResovlverFactory.clear();
+
         tempStop = false;
+    }
+
+    private boolean shouldIInvoke() {
+        return parsedDrlFile.shouldIInvoke(this);
     }
 
     //prepare for cep
@@ -122,6 +130,10 @@ public class Rule {
 
     public void stopThisOne() {
         tempStop = true;
+    }
+
+    public boolean removeRuleOnce(String ruleName) {
+        return parsedDrlFile.removeOnce(ruleName);
     }
 
     public String getText() {
