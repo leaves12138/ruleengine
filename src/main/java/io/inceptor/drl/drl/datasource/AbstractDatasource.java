@@ -1,7 +1,6 @@
 package io.inceptor.drl.drl.datasource;
 
-import io.inceptor.drl.drl.condition.Condition;
-import io.inceptor.drl.drl.symboltable.SymbolTable;
+import io.inceptor.drl.drl.condition.inner.InnerCondition;
 import io.inceptor.drl.exceptions.CannotInvokeMethodException;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
 import org.mvel2.integration.VariableResolverFactory;
@@ -18,7 +17,7 @@ public abstract class AbstractDatasource implements Datasource {
     }
 
     @Override
-    public <M> List<M> getData(List<Condition> conditions, Class<M> mClass) {
+    public <M> List<M> getData(List<InnerCondition> conditions, Class<M> mClass) {
         throw new CannotInvokeMethodException();
     }
 
@@ -53,7 +52,7 @@ public abstract class AbstractDatasource implements Datasource {
     }
 
     @Override
-    public <M> List<M> select(List<Condition> conditions, Class<M> mClass) {
+    public <M> List<M> select(List<InnerCondition> conditions, Class<M> mClass) {
         throw new CannotInvokeMethodException();
     }
 
@@ -63,12 +62,12 @@ public abstract class AbstractDatasource implements Datasource {
     }
 
     @Override
-    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass) {
+    public <M> String getSelectSql(List<InnerCondition> conditions, Class<M> mClass) {
         throw new CannotInvokeMethodException();
     }
 
     @Override
-    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory) {
+    public <M> String getSelectSql(List<InnerCondition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory) {
         throw new CannotInvokeMethodException();
     }
 

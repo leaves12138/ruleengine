@@ -1,11 +1,10 @@
-package io.inceptor.drl.drl.condition;
+package io.inceptor.drl.drl.condition.inner;
 
-import io.inceptor.drl.drl.symboltable.SymbolTable;
 import org.mvel2.integration.VariableResolverFactory;
 
-public class OrCondition implements Condition {
-    public Condition leftCondition;
-    public Condition rightCondition;
+public class OrCondition implements InnerCondition {
+    public InnerCondition leftCondition;
+    public InnerCondition rightCondition;
 
     public void init(Class c) {
         leftCondition.init(c);

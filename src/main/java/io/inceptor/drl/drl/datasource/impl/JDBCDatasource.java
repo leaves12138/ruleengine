@@ -1,10 +1,9 @@
 package io.inceptor.drl.drl.datasource.impl;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import io.inceptor.drl.drl.condition.Condition;
+import io.inceptor.drl.drl.condition.inner.InnerCondition;
 import io.inceptor.drl.drl.datasource.AbstractDatasource;
 import io.inceptor.drl.drl.datasource.Datasource;
-import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.sql.SQLGenerator;
 import io.inceptor.drl.util.orm.ORM;
 import io.inceptor.drl.util.orm.JdbcResolvedClass;
@@ -79,7 +78,7 @@ public class JDBCDatasource extends AbstractDatasource {
     }
 
     @Override
-    public <M> List<M> getData(List<Condition> conditions, Class<M> mClass) {
+    public <M> List<M> getData(List<InnerCondition> conditions, Class<M> mClass) {
         try(Connection connection = druidDataSource.getConnection()) {
             String sql = sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass));
             ResultSet resultSet = getResult(sql, connection);
@@ -194,7 +193,7 @@ public class JDBCDatasource extends AbstractDatasource {
     }
 
     @Override
-    public <M> List<M> select(List<Condition> conditions, Class<M> mClass) {
+    public <M> List<M> select(List<InnerCondition> conditions, Class<M> mClass) {
         try {
             String sql = sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass));
             Connection connection = druidDataSource.getConnection();
@@ -221,12 +220,12 @@ public class JDBCDatasource extends AbstractDatasource {
     }
 
     @Override
-    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass) {
+    public <M> String getSelectSql(List<InnerCondition> conditions, Class<M> mClass) {
         return sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass));
     }
 
     @Override
-    public <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory) {
+    public <M> String getSelectSql(List<InnerCondition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory) {
         return sqlGenerator.generateSelectSql(conditions, JdbcResolvedClass.getResolve(mClass), variableResolverFactory);
     }
 

@@ -1,10 +1,10 @@
-package io.inceptor.drl.drl.condition;
+package io.inceptor.drl.drl.condition.inner;
 
 import org.mvel2.MVEL;
 
 import java.io.Serializable;
 
-public class Value {
+public class RightValue {
     public static enum Type {
         NUMBER, FLOAT, STRING, BOOLEAN, NULL, REF, METHODCALL
     }

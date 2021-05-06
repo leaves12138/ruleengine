@@ -1,9 +1,6 @@
 package io.inceptor.drl.drl.datasource;
 
-import io.inceptor.drl.drl.condition.Condition;
-import io.inceptor.drl.drl.condition.Value;
-import io.inceptor.drl.drl.symboltable.SymbolTable;
-import org.junit.jupiter.params.shadow.com.univocity.parsers.common.record.RecordMetaData;
+import io.inceptor.drl.drl.condition.inner.InnerCondition;
 import org.mvel2.integration.VariableResolverFactory;
 import redis.clients.jedis.Protocol;
 
@@ -26,7 +23,7 @@ public interface Datasource {
 
     // for rmdb
 
-    <M> List<M> getData(List<Condition> conditions, Class<M> mClass);
+    <M> List<M> getData(List<InnerCondition> conditions, Class<M> mClass);
 
     boolean insert(Object o);
 
@@ -40,13 +37,13 @@ public interface Datasource {
 
     boolean deleteByKeys(Object o);
 
-    <M> List<M> select(List<Condition> conditions, Class<M> mClass);
+    <M> List<M> select(List<InnerCondition> conditions, Class<M> mClass);
 
     <M> List<M> select(String sql, Class<M> mClass);
 
-    <M> String getSelectSql(List<Condition> conditions, Class<M> mClass);
+    <M> String getSelectSql(List<InnerCondition> conditions, Class<M> mClass);
 
-    <M> String getSelectSql(List<Condition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory);
+    <M> String getSelectSql(List<InnerCondition> conditions, Class<M> mClass, VariableResolverFactory variableResolverFactory);
 
     // for redis
 

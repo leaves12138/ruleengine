@@ -25,6 +25,11 @@ public class ActionImpl implements Action {
     }
 
     public void invoke(VariableResolverFactory variableResolverFactory) {
-        MVEL.executeExpression(compiledCode, variableResolverFactory);
+        try {
+            MVEL.executeExpression(compiledCode, variableResolverFactory);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

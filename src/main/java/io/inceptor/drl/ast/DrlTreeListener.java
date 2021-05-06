@@ -1,11 +1,10 @@
 package io.inceptor.drl.ast;
 
-import io.inceptor.drl.drl.DeclaredClass;
-import io.inceptor.drl.drl.ParsedDrlFile;
-import io.inceptor.drl.drl.Rule;
+import io.inceptor.drl.drl.*;
 import io.inceptor.drl.drl.action.Action;
 import io.inceptor.drl.drl.action.ActionImpl;
 import io.inceptor.drl.drl.condition.*;
+import io.inceptor.drl.drl.condition.inner.*;
 import io.inceptor.drl.parser.DrlLexer;
 import io.inceptor.drl.parser.DrlParser;
 import io.inceptor.drl.parser.DrlParserBaseListener;
@@ -14,11 +13,13 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.inceptor.drl.drl.condition.inner.LeftValue.Type.*;
+
 public class DrlTreeListener extends DrlParserBaseListener {
     private ParsedDrlFile parsedDrlFile;
     private DeclaredClass currentDeclaredClass;
     private Rule currentRule;
-    private ClassCondition currentClassCondition;
+    private Condition currentClassCondition;
 
     public ParsedDrlFile getParsedDrlFile() {
         return parsedDrlFile;
@@ -38,14 +39,11 @@ public class DrlTreeListener extends DrlParserBaseListener {
     public void enterImportDecls(DrlParser.ImportDeclsContext ctx) {
         if (ctx.children == null)
             return;
-        int importDrl = 0, importJava = 0, importDatasource = 0;
+        int importDrl = 0,  importDatasource = 0;
         for (ParseTree child : ctx.children) {
             child = child.getChild(0);
             if (child instanceof DrlParser.ImportDrlContext) {
                 importDrl++;
-            }
-            if (child instanceof DrlParser.ImportNormalContext) {
-                importJava++;
             }
 
             if (child instanceof DrlParser.ImportDatasourceContext) {
@@ -53,25 +51,37 @@ public class DrlTreeListener extends DrlParserBaseListener {
             }
         }
         parsedDrlFile.setDrlImports(new String[importDrl]);
-        parsedDrlFile.setJavaImoprts(new String[importJava]);
+//        parsedDrlFile.setJavaImoprts(new JavaImportClass[importJava]);
         parsedDrlFile.setDatasourceImports(new String[importDatasource]);
-        importDrl = importJava = importDatasource = 0;
+        importDrl = importDatasource = 0;
 
         for (ParseTree child : ctx.children) {
             child = child.getChild(0);
             if (child instanceof DrlParser.ImportDrlContext) {
                 parsedDrlFile.getDrlImports()[importDrl] = ((DrlParser.ImportDrlContext) child).qualifiedName().getText();
                 importDrl++;
+                continue;
             }
 
             if (child instanceof DrlParser.ImportNormalContext) {
-                parsedDrlFile.getJavaImoprts()[importJava] = ((DrlParser.ImportNormalContext) child).qualifiedName().getText();
-                importJava++;
+//                parsedDrlFile.getJavaImoprts()[importJava] = ((DrlParser.ImportNormalContext) child).qualifiedName().getText();
+                JavaImportClass javaImportClass = new JavaImportClass(child.getText() , ((DrlParser.ImportNormalContext) child).qualifiedName().getText());
+                parsedDrlFile.addImportClass(javaImportClass);
+                continue;
             }
 
             if (child instanceof DrlParser.ImportDatasourceContext) {
                 parsedDrlFile.getDatasourceImports()[importDatasource] = ((DrlParser.ImportDatasourceContext) child).qualifiedName().getText();
                 importDatasource++;
+                continue;
+            }
+
+            if (child instanceof DrlParser.ImportGlobalContext) {
+                GlobalImport globalImport = new GlobalImport();
+                globalImport.setGlobalType(((DrlParser.ImportGlobalContext) child).qualifiedName().getText());
+                globalImport.setGlobalName(((DrlParser.ImportGlobalContext) child).name.getText());
+                parsedDrlFile.addImportGlobal(globalImport);
+                continue;
             }
         }
     }
@@ -114,7 +124,25 @@ public class DrlTreeListener extends DrlParserBaseListener {
     }
 
     @Override public void enterGlobal(DrlParser.GlobalContext ctx) {
-        this.parsedDrlFile.setGlobal(ctx.glbcodelines().getText());
+        String expr = ctx.block().getText();
+        this.parsedDrlFile.setGlobalExpr(expr.substring(1, expr.length()-1));
+    }
+
+    @Override public void enterFunctions(DrlParser.FunctionsContext ctx) {
+        for(DrlParser.FunctionContext fctx : ctx.function()) {
+            DrlParser.FbodyContext body = fctx.fbody();
+
+            DefinedFunction definedFunction = new DefinedFunction();
+            definedFunction.setReturnType(body.returnType().getText());
+            definedFunction.setMethodName(body.fname.getText());
+            for (DrlParser.ParamContext param : body.params().param()) {
+                definedFunction.addParam(param.type().getText(), param.var().getText());
+            }
+            String bs = fctx.fbody().block().getText();
+            definedFunction.setBody(bs.substring(1, bs.length()-1));
+
+            parsedDrlFile.addDefinedFunction(definedFunction);
+        }
     }
 
     @Override
@@ -202,11 +230,20 @@ public class DrlTreeListener extends DrlParserBaseListener {
         currentClassCondition = classCondition;
     }
 
+
+    @Override
+    public void enterFromMethodCall(DrlParser.FromMethodCallContext ctx) {
+        MethodCondition methodCondition = new MethodCondition();
+        methodCondition.setStatement(ctx.getText());
+        currentRule.getClassCondition().add(methodCondition);
+        currentClassCondition = methodCondition;
+    }
+
     @Override
     public void enterConditions(DrlParser.ConditionsContext ctx) {
         for (DrlParser.ConditionContext conditionContext : ctx.condition()) {
-            Condition condition = getConditionFromCtx(conditionContext);
-            currentClassCondition.getConditionList().add(condition);
+            InnerCondition condition = getConditionFromCtx(conditionContext);
+            ((ClassCondition)currentClassCondition).getConditionList().add(condition);
         }
     }
 
@@ -218,52 +255,89 @@ public class DrlTreeListener extends DrlParserBaseListener {
     }
 
 
-    public Condition getConditionFromCtx(DrlParser.ConditionContext ctx) {
+    public InnerCondition getConditionFromCtx(DrlParser.ConditionContext ctx) {
         if (ctx instanceof DrlParser.CompareConditionContext) {
             DrlParser.CompareClauseContext compareClauseContext = ((DrlParser.CompareConditionContext) ctx).compareClause();
             CompareCondition compareCondition = new CompareCondition();
-            compareCondition.setIsLeftMethodCall(compareClauseContext.lm);
-            if (compareClauseContext.lm) {
-                compareCondition.setLeft(compareClauseContext.jsonPath().getText());
-            } else
-                compareCondition.setLeft(compareClauseContext.fieldName.getText());
+
+            LeftValue leftValue = new LeftValue();
+
+            if (compareClauseContext.lm == 1) {
+                leftValue.setType(JSON);
+                leftValue.setContent(compareClauseContext.jsonPath().getText());
+            }
+            else if (compareClauseContext.lm == 0) {
+                leftValue.setType(FIELD);
+                leftValue.setContent(compareClauseContext.fieldName.getText());
+            }
+            else if (compareClauseContext.lm == 2) {
+                leftValue.setType(METHODCALL);
+                leftValue.setContent(compareClauseContext.methodCall().getText());
+            }
+            compareCondition.setLeftValue(leftValue);
+
             if (compareClauseContext.symbole != null)
                 compareCondition.setSymbolName(compareClauseContext.symbole.getText());
-            Value value = new Value();
-            value.setType(getType(compareClauseContext.literal()));
-            value.setValue(compareClauseContext.literal().getText());
-            compareCondition.setSymbol(compareClauseContext.COMPARE().getText());
-            compareCondition.setRight(value);
+
+            RightValue rightValue = new RightValue();
+            rightValue.setType(getType(compareClauseContext.literal()));
+            rightValue.setValue(compareClauseContext.literal().getText());
+            compareCondition.setSymbol(compareClauseContext.compare().getText());
+            compareCondition.setRight(rightValue);
             return compareCondition;
 
         } else if (ctx instanceof DrlParser.ContainConditionContext) {
             DrlParser.ContainClauseContext containClauseContext = ((DrlParser.ContainConditionContext) ctx).containClause();
             ContainCondition containCondition = new ContainCondition();
-            containCondition.setIsLeftMethodCall(containClauseContext.lm);
-            if (containClauseContext.lm) {
-                containCondition.setLeft(containClauseContext.jsonPath().getText());
-            } else
-                containCondition.setLeft(containClauseContext.fieldName.getText());
+
+            LeftValue leftValue = new LeftValue();
+
+            if (containClauseContext.lm == 1) {
+                leftValue.setType(JSON);
+                leftValue.setContent(containClauseContext.jsonPath().getText());
+            }
+            else if (containClauseContext.lm == 0) {
+                leftValue.setType(FIELD);
+                leftValue.setContent(containClauseContext.fieldName.getText());
+            }
+            else if (containClauseContext.lm == 2) {
+                leftValue.setType(METHODCALL);
+                leftValue.setContent(containClauseContext.methodCall().getText());
+            }
+            containCondition.setLeftValue(leftValue);
+
             if (containClauseContext.symbole != null)
                 containCondition.setSymbolName(containClauseContext.symbole.getText());
             containCondition.setContain(containClauseContext.CONTAIN().getText());
-            List<Value> valueList = new ArrayList();
+
+            List<RightValue> rightValueList = new ArrayList();
             for (DrlParser.LiteralContext literalContext : containClauseContext.literal()) {
-                Value value = new Value();
-                value.setType(getType(literalContext));
-                value.setValue(literalContext.getText());
-                valueList.add(value);
+                RightValue rightValue = new RightValue();
+                rightValue.setType(getType(literalContext));
+                rightValue.setValue(literalContext.getText());
+                rightValueList.add(rightValue);
             }
-            containCondition.setRights(valueList);
+            containCondition.setRights(rightValueList);
             return containCondition;
         } else if (ctx instanceof DrlParser.ExistsConditionContext) {
             DrlParser.ExistsClauseContext existsClauseContext = ((DrlParser.ExistsConditionContext) ctx).existsClause();
             ExistCondition existsCondition = new ExistCondition();
-            existsCondition.setIsLeftMethodCall(existsClauseContext.lm);
-            if (existsClauseContext.lm) {
-                existsCondition.setLeft(existsClauseContext.jsonPath().getText());
-            } else
-                existsCondition.setLeft(existsClauseContext.fieldName.getText());
+            LeftValue leftValue = new LeftValue();
+
+            if (existsClauseContext.lm == 1) {
+                leftValue.setType(JSON);
+                leftValue.setContent(existsClauseContext.jsonPath().getText());
+            }
+            else if (existsClauseContext.lm == 0) {
+                leftValue.setType(FIELD);
+                leftValue.setContent(existsClauseContext.fieldName.getText());
+            }
+            else if (existsClauseContext.lm == 2) {
+                leftValue.setType(METHODCALL);
+                leftValue.setContent(existsClauseContext.methodCall().getText());
+            }
+            existsCondition.setLeftValue(leftValue);
+
             if (existsClauseContext.symbole != null)
                 existsCondition.setSymbolName(existsClauseContext.symbole.getText());
             return existsCondition;
@@ -273,37 +347,41 @@ public class DrlTreeListener extends DrlParserBaseListener {
         } else if (ctx instanceof DrlParser.AndOrConditionContext) {
             if (((DrlParser.AndOrConditionContext) ctx).op.getType() == DrlLexer.AndAnd) {
                 AndCondition andCondition = new AndCondition();
-                Condition left = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).left);
-                Condition right = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).right);
+                InnerCondition left = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).left);
+                InnerCondition right = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).right);
                 andCondition.leftCondition = left;
                 andCondition.rightCondition = right;
                 return andCondition;
             } else {
                 OrCondition orCondition = new OrCondition();
-                Condition left = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).left);
-                Condition right = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).right);
+                InnerCondition left = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).left);
+                InnerCondition right = getConditionFromCtx(((DrlParser.AndOrConditionContext) ctx).right);
                 orCondition.leftCondition = left;
                 orCondition.rightCondition = right;
                 return orCondition;
             }
+        } else if (ctx instanceof DrlParser.MethodConditionContext) {
+            InnerMethodCondition methodCondition = new InnerMethodCondition();
+            methodCondition.setStatement(ctx.getText());
+            return methodCondition;
         } else {
             return null;
         }
     }
 
-    private Value.Type getType(DrlParser.LiteralContext ctx) {
+    private RightValue.Type getType(DrlParser.LiteralContext ctx) {
         if (ctx instanceof DrlParser.NumberBranchContext) {
-            return Value.Type.NUMBER;
+            return RightValue.Type.NUMBER;
         } else if (ctx instanceof DrlParser.FloatBranchContext) {
-            return Value.Type.FLOAT;
+            return RightValue.Type.FLOAT;
         } else if (ctx instanceof DrlParser.StringBranchContext) {
-            return Value.Type.STRING;
+            return RightValue.Type.STRING;
         } else if (ctx instanceof DrlParser.BooleanBranchContext) {
-            return Value.Type.BOOLEAN;
+            return RightValue.Type.BOOLEAN;
         } else if (ctx instanceof DrlParser.NullBranchContext) {
-            return Value.Type.NULL;
+            return RightValue.Type.NULL;
         } else {
-            return Value.Type.METHODCALL;
+            return RightValue.Type.METHODCALL;
         }
     }
 

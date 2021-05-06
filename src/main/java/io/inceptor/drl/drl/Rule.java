@@ -1,17 +1,14 @@
 package io.inceptor.drl.drl;
 
 import io.inceptor.drl.drl.action.Action;
-import io.inceptor.drl.drl.condition.ClassCondition;
+import io.inceptor.drl.drl.condition.Condition;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.util.DrlSession;
 import org.mvel2.integration.VariableResolverFactory;
-import org.mvel2.integration.impl.ClassImportResolverFactory;
-import org.mvel2.integration.impl.MapVariableResolverFactory;
+import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Rule {
     private String text;
@@ -26,7 +23,7 @@ public class Rule {
 
     private MapVariableResolverFactory ruleMapVariableResovlverFactory;
 
-    private List<ClassCondition> classConditions;
+    private List<Condition> conditions;
 
     private Action action;
 
@@ -38,7 +35,7 @@ public class Rule {
 
     private boolean inited = false;
 
-    public void init(List<DeclaredClass> list, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session, VariableResolverFactory global) {
+    public void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session, VariableResolverFactory global) {
         if (!inited) {
             this.session = session;
             this.parsedDrlFile = parsedDrlFile;
@@ -57,8 +54,8 @@ public class Rule {
 
             ruleMapVariableResovlverFactory.setNextFactory(global);
 
-            for (ClassCondition classCondition : classConditions) {
-                classCondition.init(list, dataSources);
+            for (Condition condition : conditions) {
+                condition.init(list, javaImportClasses, dataSources);
             }
 
             action.compile(ParsedDrlFile.classImportResolverFactory.getImportedClasses());
@@ -67,7 +64,7 @@ public class Rule {
         }
 
         if (next != null) {
-            next.init(list, dataSources, parsedDrlFile, session, global);
+            next.init(list, javaImportClasses, dataSources, parsedDrlFile, session, global);
         }
     }
 
@@ -76,8 +73,8 @@ public class Rule {
             VariableResolverFactory fame = new MapVariableResolverFactory();
             fame.setNextFactory(ruleMapVariableResovlverFactory);
             boolean pass = true;
-            for (ClassCondition classCondition : classConditions) {
-                if (!classCondition.evaluate(o, fame)) {
+            for (Condition condition : conditions) {
+                if (!condition.evaluate(o, fame)) {
                     pass = false;
                     break;
                 }
@@ -105,7 +102,30 @@ public class Rule {
 
     //prepare for cep
     public void accept(List<Object> os) {
+        if (shouldIInvoke()) {
+            List<MapVariableResolverFactory> frames = new LinkedList<>();
+            MapVariableResolverFactory mapVariableResolverFactory = new MapVariableResolverFactory();
+            mapVariableResolverFactory.setNextFactory(ruleMapVariableResovlverFactory);
+            frames.add(mapVariableResolverFactory);
 
+
+            for (Condition condition : conditions) {
+                frames = condition.evaluate(os, frames);
+            }
+
+            for (MapVariableResolverFactory frame : frames) {
+                action.invoke(frame);
+            }
+
+        }
+
+        if (next != null && !tempStop) {
+            next.accept(os);
+        }
+
+        tempNexts.clear();
+
+        tempStop = false;
     }
 
     public void fireRuleFile(String fileName) {
@@ -152,12 +172,12 @@ public class Rule {
         this.name = name;
     }
 
-    public List<ClassCondition> getClassCondition() {
-        return classConditions;
+    public List<Condition> getClassCondition() {
+        return conditions;
     }
 
-    public void setClassCondition(List<ClassCondition> classConditions) {
-        this.classConditions = classConditions;
+    public void setClassCondition(List<Condition> conditions) {
+        this.conditions = conditions;
     }
 
     public Action getAction() {
@@ -167,4 +187,5 @@ public class Rule {
     public void setAction(Action action) {
         this.action = action;
     }
+
 }

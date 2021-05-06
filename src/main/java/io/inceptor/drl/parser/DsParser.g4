@@ -14,7 +14,7 @@ field : TYPE             ':'       STRING                            #TypeBranch
        | HOST            ':'       STRING                            #HostBranch
        | ISCLUSTER       ':'       booleanLiteral                    #IsClusterBranch
        | CLUSTERIPS      ':'       STRING                            #ClusterIpsBranch
-       | name=STRING     ':'       (value=STRING|value=NUMBER)       #UserDefineBranch
+       | name=STRING     ':'       (rightValue=STRING|rightValue=NUMBER)       #UserDefineBranch
        ;
 
 booleanLiteral

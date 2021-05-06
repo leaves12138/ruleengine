@@ -1,11 +1,10 @@
-package io.inceptor.drl.drl.condition;
+package io.inceptor.drl.drl.condition.inner;
 
-import io.inceptor.drl.drl.symboltable.SymbolTable;
 import org.mvel2.integration.VariableResolverFactory;
 
-public class AndCondition implements Condition {
-    public Condition leftCondition;
-    public Condition rightCondition;
+public class AndCondition implements InnerCondition {
+    public InnerCondition leftCondition;
+    public InnerCondition rightCondition;
 
     public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
         return leftCondition.evaluate(o, variableResolverFactory) && rightCondition.evaluate(o, variableResolverFactory);

@@ -41,12 +41,6 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitGlobal(DrlParser.GlobalContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link DrlParser#glbcodelines}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitGlbcodelines(DrlParser.GlbcodelinesContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link DrlParser#rules}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -76,6 +70,18 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitImportNormal(DrlParser.ImportNormalContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#importStatic}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImportStatic(DrlParser.ImportStaticContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#importGlobal}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitImportGlobal(DrlParser.ImportGlobalContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#declare}.
 	 * @param ctx the parse tree
@@ -145,6 +151,13 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFromDs(DrlParser.FromDsContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code fromMethodCall}
+	 * labeled alternative in {@link DrlParser#whenClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFromMethodCall(DrlParser.FromMethodCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link DrlParser#conditions}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -157,6 +170,13 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExistsCondition(DrlParser.ExistsConditionContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MethodCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodCondition(DrlParser.MethodConditionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code ContainCondition}
 	 * labeled alternative in {@link DrlParser#condition}.
@@ -203,6 +223,12 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExistsClause(DrlParser.ExistsClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#compare}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompare(DrlParser.CompareContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code NumberBranch}
 	 * labeled alternative in {@link DrlParser#literal}.
@@ -252,6 +278,60 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMethodCall(DrlParser.MethodCallContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link DrlParser#functions}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunctions(DrlParser.FunctionsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#function}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunction(DrlParser.FunctionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#fbody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFbody(DrlParser.FbodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#params}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParams(DrlParser.ParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParam(DrlParser.ParamContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitType(DrlParser.TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#returnType}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnType(DrlParser.ReturnTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#var}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVar(DrlParser.VarContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlock(DrlParser.BlockContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link DrlParser#jsonPath}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -281,4 +361,10 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitQualifiedName(DrlParser.QualifiedNameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#genericity}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGenericity(DrlParser.GenericityContext ctx);
 }

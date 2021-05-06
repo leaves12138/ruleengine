@@ -1,13 +1,15 @@
 package io.inceptor.drl.drl.condition;
 
 import io.inceptor.drl.drl.DeclaredClass;
+import io.inceptor.drl.drl.JavaImportClass;
+import io.inceptor.drl.drl.condition.inner.InnerCondition;
 import io.inceptor.drl.drl.datasource.Datasource;
-import io.inceptor.drl.drl.symboltable.SymbolTable;
+import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
+import io.vertx.core.Future;
 import org.mvel2.integration.VariableResolverFactory;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DbClassCondition extends ClassCondition {
 
@@ -22,8 +24,8 @@ public class DbClassCondition extends ClassCondition {
     protected String limitNum;
 
     @Override
-    public void init(List<DeclaredClass> list, Map<String, Datasource> datasources) {
-        super.init(list, datasources);
+    public void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> datasources) {
+        super.init(list, javaImportClasses, datasources);
 
         if (datasources.containsKey(datasourceName))
             datasource = datasources.get(datasourceName);
@@ -56,6 +58,29 @@ public class DbClassCondition extends ClassCondition {
         return true;
     }
 
+    @Override
+    public List<MapVariableResolverFactory> evaluate(List<Object> os, List<MapVariableResolverFactory> vars) {
+
+        List<MapVariableResolverFactory> dst = new LinkedList<>();
+
+        for (Object o : os) {
+            middle:
+            for (MapVariableResolverFactory var : vars) {
+                Map<String, Object> mapCloned = (Map<String, Object>) ((HashMap) var.getVarMap()).clone();
+                MapVariableResolverFactory variableResolverFactory = new MapVariableResolverFactory(mapCloned);
+                if (!evaluate(o, variableResolverFactory)) {
+                    continue middle;
+                }
+                if (symbolName != null) {
+                    mapCloned.put(symbolName, o);
+                }
+                dst.add(variableResolverFactory);
+            }
+        }
+
+        return dst;
+    }
+
     public String getDatasourceName() {
         return datasourceName;
     }
@@ -76,5 +101,10 @@ public class DbClassCondition extends ClassCondition {
 
     public void setLimitNum(String n){
         this.limitNum = n;
+    }
+
+    //async
+    public Future asyncEvaluate() {
+        return null;
     }
 }

@@ -1,7 +1,6 @@
 package io.inceptor.drl.sql;
 
-import io.inceptor.drl.drl.condition.Condition;
-import io.inceptor.drl.drl.symboltable.SymbolTable;
+import io.inceptor.drl.drl.condition.inner.InnerCondition;
 import io.inceptor.drl.util.orm.JdbcResolvedClass;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.dialect.Dialect;
@@ -69,7 +68,7 @@ public class SQLGenerator {
         return delete.toStatementString();
     }
 
-    public String generateSelectSql(List<Condition> conditions, JdbcResolvedClass c) {
+    public String generateSelectSql(List<InnerCondition> conditions, JdbcResolvedClass c) {
         if (StringUtils.isNotBlank(c.getSelect()))
             return c.getSelect();
         Select select = new Select(dialect);
@@ -82,7 +81,7 @@ public class SQLGenerator {
         return select.toStatementString();
     }
 
-    public String generateSelectSql(List<Condition> conditions, JdbcResolvedClass c, VariableResolverFactory variableResolverFactory) {
+    public String generateSelectSql(List<InnerCondition> conditions, JdbcResolvedClass c, VariableResolverFactory variableResolverFactory) {
         if (StringUtils.isNotBlank(c.getSelect()))
             return c.getSelect();
         Select select = new Select(dialect);

@@ -21,7 +21,7 @@ WHEN : 'when' ;
 
 THEN : 'then'   -> mode(MVEL) ;
 
-GLOBAL : 'global' -> mode(MVEL) ;
+GLOBAL : 'global' ;
 
 PACKAGE : 'package' ;
 
@@ -42,6 +42,10 @@ FROM : 'from';
 
 LIMIT : 'limit';
 
+FUNCTION : 'function'  ;
+
+STATIC : 'static' ;
+
 SEP : ';' ;
 
 DOT : '.' ;
@@ -58,23 +62,37 @@ LeftBracket: '[';
 
 RightBracket: ']' ;
 
+LeftBrace: '{' -> pushMode(Block);
+
+RightBrace: '}';
+
 Colon: ':';
 
 Comma: ',';
 
 Equal: '=';
 
+Less : '<' ;
 
+Greater : '>' ;
+
+EqualEqual: '==';
+
+NotEqual: '!=';
+
+LessEqual: '<=';
+
+GreaterEqual: '>=';
 
 
 //conditions
-COMPARE : '=='
-        | '>='
-        | '<='
-        | '!='
-        | '<'
-        | '>'
-        ;
+//COMPARE : '=='
+//        | '>='
+//        | '<='
+//        | '!='
+//        | '<'
+//        | '>'
+//        ;
 CONTAIN : 'in'
         | 'not in'
         ;
@@ -112,3 +130,28 @@ mode MVEL;
 ENDMVEL : ('end' | 'end\n') -> mode(DEFAULT_MODE) ;
 LINE : ~[ \n].*? '\n';
 WS2 : [ \n]* -> skip;
+
+//mode Function;
+
+//FIdentifier
+//    :   Letter (Letter|Digit)*
+//    ;
+
+//FLeftBrace: '{' -> pushMode(Block);
+
+//FRightBrace : '}' -> popMode;
+
+
+mode Block;
+
+BLINE : (~['{''}'] )* ;
+
+BSTRING : '"' ('\\"'|.)*? '"' {setText(getText().substring(1,getText().length()-1).replace("\\\"","\""));};
+
+BLeftBrace: '{' -> pushMode(Block), type(LeftBrace);
+
+BRightBrace: '}' -> popMode, type(RightBrace);
+
+
+
+

@@ -3,6 +3,7 @@ package io.inceptor.drl.util;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.ParsedDrlFile;
 import io.inceptor.drl.drl.Rule;
+import io.inceptor.drl.drl.RuleEntry;
 import io.inceptor.drl.drl.datasource.Datasource;
 
 import java.io.IOException;
@@ -19,6 +20,8 @@ public class DrlSession {
     private Map<String, Datasource> dsCache = new HashMap();
 
     private LinkedBlockingQueue objectQueue = new LinkedBlockingQueue();
+
+    private Map<String, Object> globalMap = new HashMap<>();
 
     private String entrance;
 
@@ -72,12 +75,12 @@ public class DrlSession {
             throw new RuntimeException("can't find drl file " + entrance + " in cache");
         ParsedDrlFile file = drlCache.get(entrance);
         file.init(this);
-        Rule rule = file.getHeadRule();
+        RuleEntry ruleEntry = file.getRuleEntry();
         stopped = false;
         while (!stopped) {
             try {
                 Object c = objectQueue.take();
-                rule.accept(c);
+                ruleEntry.accept(c);
             } catch (InterruptedException e) {
                 throw new RuntimeException("drl back session iterrupted");
             }
@@ -95,10 +98,14 @@ public class DrlSession {
         stopped = false;
         Object c;
         try {
-            while ((c = objectQueue.poll(1000, TimeUnit.MICROSECONDS)) != null) {
-                rule.accept(c);
+            while ((c = objectQueue.poll()) != null) {
+                if (c instanceof  List) {
+                    rule.accept((List<Object>) c);
+                }
+                else
+                    rule.accept(c);
             }
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
         }
         close();
     }
@@ -157,6 +164,14 @@ public class DrlSession {
             }
         }
         return null;
+    }
+
+    public void setGlobal(String name, Object o) {
+        globalMap.put(name, o);
+    }
+
+    public Object globalGet(String name) {
+        return globalMap.get(name);
     }
 
     public void close() {

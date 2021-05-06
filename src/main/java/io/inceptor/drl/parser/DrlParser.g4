@@ -6,7 +6,7 @@ parser grammar DrlParser;
 
 options {tokenVocab = DrlLexer;}
 
-file : pack importDecls declares global ? rules ;
+file : pack importDecls declares  global ? functions rules ;
 
 pack : PACKAGE qualifiedName SEP?;
 
@@ -14,19 +14,23 @@ importDecls : (importDecl) * ;
 
 declares : (declare) * ;
 
-global : GLOBAL glbcodelines ENDMVEL ;
+global : GLOBAL block ;
 
-glbcodelines : codeline *;
+//glbcodelines : codeline *;
 
 rules : (onerule) + ;
 
-importDecl : importDrl | importDatasource | importNormal ;
+importDecl : importDrl | importDatasource | importNormal | importStatic | importGlobal;
 
 importDrl : IMPORT DRL qualifiedName DOTDRL SEP;
 
 importDatasource : IMPORT DATASOURCE qualifiedName SEP;
 
 importNormal : IMPORT qualifiedName SEP;
+
+importStatic : IMPORT STATIC qualifiedName SEP;
+
+importGlobal : GLOBAL qualifiedName name=Identifier SEP;
 
 declare : (annotation)* DECLARE Identifier fields END ;
 
@@ -51,12 +55,13 @@ elementValue
     |    booleanLiteral
     ;
 
-onerule : RULE ruleName=STRING WHEN whenClauses THEN codelines ENDMVEL ;
+onerule : RULE ruleName=STRING WHEN whenClauses THEN codelines ENDMVEL SEP? ;
 
 whenClauses : (whenClause) * ;
 
 whenClause : ( symbole=Identifier ':')? className=Identifier '(' conditions ')' #fromStream
            | ( symbole=Identifier ':')? className=Identifier '(' conditions ')' FROM dbName=Identifier (LIMIT NUMBER)? #fromDs
+           | methodCall #fromMethodCall
            ;
 
 conditions : (condition (',' condition)*)? ;
@@ -65,15 +70,25 @@ condition
     : compareClause   #CompareCondition
     | containClause   #ContainCondition
     | existsClause    #ExistsCondition
+    | methodCall      #MethodCondition
     | '(' condition ')' #ConditionSelf
     | left=condition op=(AndAnd|OrOr) right=condition #AndOrCondition
     ;
 
-compareClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) COMPARE literal ;
+compareClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) compare literal ;
 
-containClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;}) CONTAIN '[' literal (',' literal)* ']' ;
+containClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) CONTAIN '[' literal (',' literal)* ']' ;
 
-existsClause returns[boolean lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=false;}|jsonPath{$lm=true;});
+existsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) EXISTS? ;
+
+compare
+    :   Less
+    |   Greater
+    |   EqualEqual
+    |   NotEqual
+    |   LessEqual
+    |   GreaterEqual
+    ;
 
 literal
     :   NUMBER                   #NumberBranch
@@ -85,11 +100,43 @@ literal
     ;
 
 methodCall
-    :   Identifier('.' Identifier)* ( '(' (Identifier)* ')' ) ?
+    :   Identifier('.' Identifier)* ( '(' ( (literal | methodCall) (',' (literal| methodCall) ) *  )? ')' ) ?
+    |   methodCall('.' Identifier)+ ( '(' ( (literal | methodCall) (',' (literal| methodCall) ) *  )? ')' ) ?
     ;
+
+// function
+
+functions : function * ;
+
+function : FUNCTION  fbody;
+
+fbody : returnType (fname=Identifier) '(' params ')' block;
+
+params
+    :   (param (',' param ) *)? ;
+
+param
+    :   type var ;
+
+type
+    :   qualifiedName;
+
+returnType
+    :   qualifiedName;
+
+var
+    :   Identifier;
+
+block
+    :   LeftBrace BLINE* RightBrace
+    |   LeftBrace (BLINE? block BLINE? )+  RightBrace
+    ;
+
 jsonPath
     :   Identifier ('[' NUMBER ']')* ('.' Identifier ('[' NUMBER ']')* )* ;
 
+
+// code
 booleanLiteral
     :   TRUE
     |   FALSE
@@ -101,5 +148,9 @@ codeline : LINE ;
 
 
 qualifiedName
-    :   Identifier ('.' Identifier)* ('.' '*')?
+    :   Identifier genericity? ('.' Identifier genericity?)* ('.' '*')?
+//    |   FIdentifier ('.' FIdentifier)* ('.' '*')?
     ;
+
+genericity
+    :   '<' Identifier (',' Identifier) * '>' ;

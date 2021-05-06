@@ -10,4 +10,14 @@ public class ClassLoaderFactory {
 
         return (DrlClassLoader) Thread.currentThread().getContextClassLoader();
     }
+
+    public static DrlClassLoader getDrlClassLoader(ClassLoader parent) {
+        if (Thread.currentThread().getContextClassLoader() == null || !(Thread.currentThread().getContextClassLoader() instanceof DrlClassLoader)) {
+            DrlClassLoader drlClassLoader = new DrlClassLoader(parent);
+            Thread.currentThread().setContextClassLoader(drlClassLoader);
+            return drlClassLoader;
+        }
+
+        return (DrlClassLoader) Thread.currentThread().getContextClassLoader();
+    }
 }

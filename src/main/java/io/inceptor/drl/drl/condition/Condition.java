@@ -1,35 +1,24 @@
 package io.inceptor.drl.drl.condition;
 
-import io.inceptor.drl.drl.symboltable.SymbolTable;
+import io.inceptor.drl.drl.DeclaredClass;
+import io.inceptor.drl.drl.JavaImportClass;
+import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import org.mvel2.integration.VariableResolverFactory;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public interface Condition {
-    //    String getClassName();
-    boolean evaluate(Object o, VariableResolverFactory variableResolverFactory);
 
-    void init(Class c);
+    void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> datasources);
 
-    String getSql();
+    List<MapVariableResolverFactory> evaluate(List<Object> os, List<MapVariableResolverFactory> vars);
 
-    String getSql(VariableResolverFactory variableResolverFactory);
+    boolean evaluate(Object o, VariableResolverFactory var);
 
-    String EQUAL = "==";
 
-    String GREATEREQUAL = ">=";
 
-    String LESSQUAL = "<=";
 
-    String NOTEUQAL = "!=";
-
-    String LESS = "<";
-
-    String GREATER = ">";
-
-    String IN = "in";
-
-    String NOTIN = "not in";
-
-    String METHOD_EQUALS = "equals";
-
-    String METHOD_COMPARETO = "compareTo";
 }

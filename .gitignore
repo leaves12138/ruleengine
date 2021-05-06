@@ -6,3 +6,4 @@ lib/
 *.interp
 *.tokens
 src/main/java/io/inceptor/drl/parser/gen/
+.gitignore

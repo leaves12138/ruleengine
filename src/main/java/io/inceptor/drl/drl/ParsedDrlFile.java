@@ -1,30 +1,39 @@
 package io.inceptor.drl.drl;
 
+import com.google.common.collect.ImmutableSet;
+import com.google.common.reflect.ClassPath;
+import io.inceptor.drl.annotation.DrlFunction;
 import io.inceptor.drl.drl.datasource.Datasource;
-import io.inceptor.drl.drl.symboltable.SymbolTable;
+import io.inceptor.drl.drl.staticclass.StaticFunction;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
 import io.inceptor.drl.exceptions.DrlFileNoFoundException;
 import io.inceptor.drl.util.DrlSession;
 import io.inceptor.drl.util.DrlUtils;
 import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;
-import org.mvel2.integration.impl.ClassImportResolverFactory;
-import org.mvel2.integration.impl.MapVariableResolverFactory;
+import org.mvel2.integration.impl.*;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ParsedDrlFile {
     private DrlSession session;
     private String fileName;
     private String location;
-    private String[] javaImoprts;
     private String[] drlImports;
     private String[] datasourceImports;
+    private Set<JavaImportClass> javaImportClasses = new HashSet<>();
+    private Set<DefinedFunction> definedFunctions = new HashSet<>();
+    private Set<GlobalImport> globalImports = new HashSet<>();
     private List<DeclaredClass> declaredClasses;
-    private String global;
+    private String globalExpr;
     private Map<String, Datasource> datasources = new HashMap();
     private Rule ruleHead;
     private Rule ruleTail;
+    private RuleEntry ruleEntry = new RuleEntry();
     private MapVariableResolverFactory globalResolverFactory;
 
     private boolean inited = false;
@@ -33,8 +42,20 @@ public class ParsedDrlFile {
     public static ClassImportResolverFactory classImportResolverFactory
             = new ClassImportResolverFactory(new ParserConfiguration(), null, false);
 
+    public static StaticMethodImportResolverFactory staticMethodImportResolverFactory
+            = new StaticMethodImportResolverFactory();
+
     static {
         classImportResolverFactory.addClass(DrlUtils.class);
+
+        try {
+            for (Method method : StaticFunction.class.getMethods()) {
+                if (method.getDeclaredAnnotation(DrlFunction.class) != null)
+                    classImportResolverFactory.createVariable(method.getName(), method);
+            }
+        } catch (SecurityException e) {
+            throw new RuntimeException("Something wrong when invoke static in ParsedDrlFile.java", e);
+        }
     }
 
     public void init(DrlSession session) {
@@ -46,7 +67,7 @@ public class ParsedDrlFile {
 
         globalResolverFactory.setNextFactory(classImportResolverFactory);
 
-        initJavaImport(javaImoprts);
+        initJavaImport();
 
         initImportDatasources(datasourceImports);
 
@@ -56,11 +77,16 @@ public class ParsedDrlFile {
             declaredClass.init();
         }
 
+        initDefinedFunctions();
+
+        initGlobalExpr();
+
         initGlobal();
 
-        if (ruleHead != null) {
-            ruleHead.init(declaredClasses, datasources, this, session, globalResolverFactory);
-        }
+        if (ruleHead != null)
+            ruleHead.init(declaredClasses, javaImportClasses, datasources, this, session, globalResolverFactory);
+
+        ruleEntry.init(ruleHead);
 
         inited = true;
     }
@@ -77,17 +103,45 @@ public class ParsedDrlFile {
         return removedRules.add(ruleName);
     }
 
-    private void initJavaImport(String[] javaImports) {
-        if (javaImports == null)
+    private void initJavaImport() {
+        if (javaImportClasses == null || javaImportClasses.size() == 0)
             return;
-        for (String javaImport : javaImports) {
-            try {
-                Class c = Thread.currentThread().getContextClassLoader().loadClass(javaImport);
-                classImportResolverFactory.addClass(c);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("can't find class " + javaImport + " by current classloader", e);
+
+        Set<JavaImportClass> add = new HashSet<>();
+
+        Iterator<JavaImportClass> iter = javaImportClasses.iterator();
+        while (iter.hasNext()) {
+            JavaImportClass javaImportClass = iter.next();
+            if ("*".equals(javaImportClass.getClassName())) {
+                try {
+                    ImmutableSet<ClassPath.ClassInfo> clsSet = ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClasses(javaImportClass.getLocation());
+                    for (ClassPath.ClassInfo info : clsSet) {
+                        try {
+                            JavaImportClass javaImportClass1 = new JavaImportClass(info.getName());
+                            Class c = javaImportClass1.init();
+                            if ((c.getModifiers() & Modifier.PUBLIC) != 0) {
+                                add.add(javaImportClass1);
+                                classImportResolverFactory.addClass(c);
+                            }
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException("can't find class " + info.getName() + " by current classloader", e);
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("IOException while find import xxx.*", e);
+                }
+                iter.remove();
+            } else {
+                try {
+                    Class c = javaImportClass.init();
+                    classImportResolverFactory.addClass(c);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("can't find class " + javaImportClass + " by current classloader", e);
+                }
             }
         }
+
+        javaImportClasses.addAll(add);
     }
 
     private void initImportDatasources(String[] datasourceImports) {
@@ -102,7 +156,7 @@ public class ParsedDrlFile {
         }
     }
 
-     private void initImportDrlFiles(String[] drlImports) {
+    private void initImportDrlFiles(String[] drlImports) {
         if (drlImports == null)
             return;
         for (String drl : drlImports) {
@@ -117,8 +171,25 @@ public class ParsedDrlFile {
         }
     }
 
+    private void initGlobalExpr() {
+        MVEL.eval(globalExpr, globalResolverFactory);
+    }
+
     private void initGlobal() {
-        MVEL.eval(global, globalResolverFactory);
+        for (GlobalImport globalImport : globalImports) {
+            Object go = session.globalGet(globalImport.getGlobalName());
+            if (go != null) {
+                globalResolverFactory.createVariable(globalImport.getGlobalName(), go);
+            }
+        }
+    }
+
+    private void initDefinedFunctions() {
+        for (DefinedFunction function : definedFunctions) {
+            function.init(location, javaImportClasses.stream().map(JavaImportClass::getFullJavaName).collect(Collectors.toSet()), null);
+            globalResolverFactory.createVariable(function.getMethodName(), function.getOnMethod());
+        }
+
     }
 
     private Datasource searchDatasource(String dsStr) {
@@ -141,13 +212,15 @@ public class ParsedDrlFile {
     public void accept(Object o) {
         removedRules.clear();
 
-        if (ruleHead != null) {
-            ruleHead.accept(o);
-        }
+        ruleEntry.accept(o);
     }
 
     public Rule getHeadRule() {
         return ruleHead;
+    }
+
+    public RuleEntry getRuleEntry() {
+        return ruleEntry;
     }
 
     //--------------getter and setter-----------------------------
@@ -167,12 +240,16 @@ public class ParsedDrlFile {
         this.location = location;
     }
 
-    public String[] getJavaImoprts() {
-        return javaImoprts;
+    public void addImportClass(JavaImportClass javaImportClass) {
+        javaImportClasses.add(javaImportClass);
     }
 
-    public void setJavaImoprts(String[] javaImoprts) {
-        this.javaImoprts = javaImoprts;
+    public void addDefinedFunction(DefinedFunction definedFunction) {
+        definedFunctions.add(definedFunction);
+    }
+
+    public void addImportGlobal(GlobalImport g) {
+        globalImports.add(g);
     }
 
     public String[] getDrlImports() {
@@ -207,10 +284,6 @@ public class ParsedDrlFile {
         this.ruleHead = rule;
     }
 
-    public Rule getRuleTail() {
-        return ruleTail;
-    }
-
     public void setRuleTail(Rule ruleTail) {
         this.ruleTail = ruleTail;
     }
@@ -219,11 +292,9 @@ public class ParsedDrlFile {
         return datasources;
     }
 
-    public void setDatasources(Map<String, Datasource> datasources) {
-        this.datasources = datasources;
+    public void setGlobalExpr(String global) {
+        this.globalExpr = global;
     }
 
-    public void setGlobal(String global) {
-        this.global = global;
-    }
+
 }
