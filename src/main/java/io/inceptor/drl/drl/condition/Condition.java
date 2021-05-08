@@ -2,6 +2,7 @@ package io.inceptor.drl.drl.condition;
 
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.JavaImportClass;
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import org.mvel2.integration.VariableResolverFactory;
@@ -18,7 +19,5 @@ public interface Condition {
 
     boolean evaluate(Object o, VariableResolverFactory var);
 
-
-
-
+    List<SymbolClassName> getAllSymbolClassNames();
 }

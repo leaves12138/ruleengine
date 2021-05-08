@@ -2,6 +2,7 @@ package io.inceptor.drl.drl.condition;
 
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.JavaImportClass;
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.inceptor.drl.exceptions.ParseDrlRuntimeException;
@@ -9,10 +10,7 @@ import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MethodCondition implements Condition {
 
@@ -52,6 +50,13 @@ public class MethodCondition implements Condition {
 
         return true;
     }
+
+    @Override
+    public List<SymbolClassName> getAllSymbolClassNames() {
+        return Collections.emptyList();
+    }
+
+
 
     public String getStatement() {
         return statement;

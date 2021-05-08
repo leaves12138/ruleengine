@@ -17,8 +17,10 @@ public class InMemoryJavaCompiler {
 
 	private Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
 
-	public static InMemoryJavaCompiler newInstance() {
-		return new InMemoryJavaCompiler();
+	private static InMemoryJavaCompiler inMemoryJavaCompiler = new InMemoryJavaCompiler();
+
+	public static InMemoryJavaCompiler instance() {
+		return inMemoryJavaCompiler;
 	}
 
 	private InMemoryJavaCompiler() {
@@ -119,13 +121,13 @@ public class InMemoryJavaCompiler {
 	/**
 	 * Compile single source
 	 *
-	 * @param className
+	 * @param fullClassName
 	 * @param sourceCode
 	 * @return
 	 * @throws Exception
 	 */
-	public Class<?> compile(String className, String sourceCode) throws Exception {
-		return addSource(className, sourceCode).compileAll().get(className);
+	public Class<?> compile(String fullClassName, String sourceCode) throws Exception {
+		return addSource(fullClassName, sourceCode).compileAll().get(fullClassName);
 	}
 
 	/**

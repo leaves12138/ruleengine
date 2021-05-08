@@ -1,5 +1,7 @@
 package io.inceptor.drl.drl;
 
+import java.util.List;
+
 public class RuleEntry {
     private Rule ruleHead;
 
@@ -9,5 +11,9 @@ public class RuleEntry {
 
     public void accept(Object o) {
         ruleHead.accept(o);
+    }
+
+    public void accept(List<Object> os) {
+        ruleHead.accept(os);
     }
 }

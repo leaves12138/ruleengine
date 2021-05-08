@@ -3,6 +3,7 @@ package io.inceptor.drl.drl.condition.inner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.ParseContext;
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
@@ -15,10 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.inceptor.drl.drl.condition.inner.LeftValue.Type.JSON;
 import static io.inceptor.drl.drl.condition.inner.LeftValue.Type.METHODCALL;
@@ -155,6 +153,17 @@ public class ContainCondition implements InnerCondition {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<SymbolClassName> getAllSymbolClassNames() {
+        if (symbolName != null && fieldClass != null) {
+            SymbolClassName symbolClassName = new SymbolClassName();
+            symbolClassName.setSymbolName(symbolName);
+            symbolClassName.setFullJavaName(fieldClass.getName());
+            return Arrays.asList(symbolClassName);
+        }
+        return Collections.emptyList();
     }
 
     private Object getLeftValue(Object o, VariableResolverFactory variableResolverFactory) throws InvocationTargetException, IllegalAccessException {

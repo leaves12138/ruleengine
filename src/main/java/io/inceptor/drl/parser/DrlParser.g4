@@ -55,7 +55,11 @@ elementValue
     |    booleanLiteral
     ;
 
-onerule : RULE ruleName=STRING WHEN whenClauses THEN codelines ENDMVEL SEP? ;
+onerule : RULE ruleName=STRING ruleFlags WHEN whenClauses THEN codelines ENDMVEL SEP? ;
+
+ruleFlags : ruleFlag * ;
+
+ruleFlag : flag=Identifier value=STRING  ;
 
 whenClauses : (whenClause) * ;
 
@@ -100,10 +104,25 @@ literal
     ;
 
 methodCall
-    :   Identifier('.' Identifier)* ( '(' ( (literal | methodCall) (',' (literal| methodCall) ) *  )? ')' ) ?
-    |   methodCall('.' Identifier)+ ( '(' ( (literal | methodCall) (',' (literal| methodCall) ) *  )? ')' ) ?
+    :   Identifier('.' Identifier)* ( '('  methodParams ? ')' ) ?
+    |   methodCall('.' Identifier)+ ( '('  methodParams ? ')' ) ?
     ;
 
+methodParams : methodParam (',' methodParam)* ;
+
+methodParam
+    :   literal
+    |   methodCall
+    |   mapParams
+    ;
+
+mapParams
+    :   '[' (mapParam ('.' mapParam) *) ? ']'
+    ;
+
+mapParam
+    :   (literal|Identifier) ':' (literal|Identifier)
+    ;
 // function
 
 functions : function * ;
@@ -153,4 +172,4 @@ qualifiedName
     ;
 
 genericity
-    :   '<' Identifier (',' Identifier) * '>' ;
+    :   '<' Identifier genericity? (',' (Identifier genericity?)) * '>' ;

@@ -2,9 +2,12 @@ package io.inceptor.drl.ast;
 
 import io.inceptor.drl.drl.*;
 import io.inceptor.drl.drl.action.Action;
-import io.inceptor.drl.drl.action.ActionImpl;
+import io.inceptor.drl.drl.action.JavaActionImpl;
+import io.inceptor.drl.drl.action.MvelActionImpl;
 import io.inceptor.drl.drl.condition.*;
 import io.inceptor.drl.drl.condition.inner.*;
+import io.inceptor.drl.drl.dialect.Dialect;
+import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.parser.DrlLexer;
 import io.inceptor.drl.parser.DrlParser;
 import io.inceptor.drl.parser.DrlParserBaseListener;
@@ -16,6 +19,7 @@ import java.util.List;
 import static io.inceptor.drl.drl.condition.inner.LeftValue.Type.*;
 
 public class DrlTreeListener extends DrlParserBaseListener {
+    private Dialect dialect = Dialect.JAVA;
     private ParsedDrlFile parsedDrlFile;
     private DeclaredClass currentDeclaredClass;
     private Rule currentRule;
@@ -86,10 +90,10 @@ public class DrlTreeListener extends DrlParserBaseListener {
         }
     }
 
-    @Override
-    public void enterDeclares(DrlParser.DeclaresContext ctx) {
-        parsedDrlFile.setDeclaredClasses(new ArrayList<DeclaredClass>());
-    }
+//    @Override
+//    public void enterDeclares(DrlParser.DeclaresContext ctx) {
+//        parsedDrlFile.setDeclaredClasses(new ArrayList<DeclaredClass>());
+//    }
 
     @Override
     public void enterDeclare(DrlParser.DeclareContext ctx) {
@@ -98,7 +102,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
         DeclaredClass declaredClass = new DeclaredClass(parsedDrlFile.getLocation());
         declaredClass.setOriText(ctx.getText());
         declaredClass.setClassName(ctx.Identifier().getText());
-        parsedDrlFile.getDeclaredClasses().add(declaredClass);
+        parsedDrlFile.addDeclaredClasses(declaredClass);
         currentDeclaredClass = declaredClass;
         currentDeclaredClass.setAnnotations(new ArrayList<>(annotationContexts.size()));
         for (DrlParser.AnnotationContext annotationContext : annotationContexts) {
@@ -191,13 +195,20 @@ public class DrlTreeListener extends DrlParserBaseListener {
             currentRule = currentRule.next;
         }
         rule.setClassCondition(new ArrayList<>());
-        rule.setName(ctx.ruleName.getText());
+        rule.setName(getString(ctx.ruleName.getText()));
         rule.setText(ctx.getText());
     }
 
     @Override
     public void exitOnerule(DrlParser.OneruleContext ctx) {
         parsedDrlFile.setRuleTail(currentRule);
+    }
+
+    @Override public void enterRuleFlag(DrlParser.RuleFlagContext ctx) {
+        String flagName = ctx.flag.getText();
+        String value = ctx.value.getText();
+        Rule.FlagTypeValue flagTypeValue = Rule.FlagTypeValue.valueOf(flagName, getString(value));
+        currentRule.addFlag(flagTypeValue);
     }
 
     @Override
@@ -249,7 +260,18 @@ public class DrlTreeListener extends DrlParserBaseListener {
 
     @Override
     public void enterCodelines(DrlParser.CodelinesContext ctx) {
-        Action action = new ActionImpl();
+        Action action;
+        switch (dialect) {
+            case JAVA:
+                action = new JavaActionImpl();
+                break;
+            case MVEL:
+                action = new MvelActionImpl();
+                break;
+
+            default:
+                throw new InitializationException("never get here");
+        }
         action.setCode(ctx.getText());
         currentRule.setAction(action);
     }
@@ -281,7 +303,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
 
             RightValue rightValue = new RightValue();
             rightValue.setType(getType(compareClauseContext.literal()));
-            rightValue.setValue(compareClauseContext.literal().getText());
+            rightValue.setValue(getString(compareClauseContext.literal().getText()));
             compareCondition.setSymbol(compareClauseContext.compare().getText());
             compareCondition.setRight(rightValue);
             return compareCondition;
@@ -314,7 +336,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
             for (DrlParser.LiteralContext literalContext : containClauseContext.literal()) {
                 RightValue rightValue = new RightValue();
                 rightValue.setType(getType(literalContext));
-                rightValue.setValue(literalContext.getText());
+                rightValue.setValue(getString(literalContext.getText()));
                 rightValueList.add(rightValue);
             }
             containCondition.setRights(rightValueList);
@@ -395,5 +417,9 @@ public class DrlTreeListener extends DrlParserBaseListener {
         } else {
             return Float.valueOf(ctx.FloatingPointLiteral().getText());
         }
+    }
+
+    private String getString(String a) {
+        return a.substring(1, a.length()-1);
     }
 }

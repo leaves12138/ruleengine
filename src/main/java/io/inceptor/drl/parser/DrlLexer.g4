@@ -102,7 +102,8 @@ Identifier
     :   Letter (Letter|Digit)*
     ;
 
-STRING : '"' ('\\"'|.)*? '"' {setText(getText().substring(1,getText().length()-1).replace("\\\"","\""));};
+STRING : '"' ('\\"'|.)*? '"' {setText(getText().replace("\\\"","\""));}
+        | '\'' ('\\\''|.)*? '\'' {setText(getText().replace("\\\'","\'"));};
 
 NUMBER :   Digit+ ;
 
@@ -119,7 +120,7 @@ FloatingPointLiteral
 
 
 fragment
-Letter : [$a-zA-Z_] ;
+Letter : [-$a-zA-Z_] ;
 
 fragment
 Digit : [0-9]
@@ -127,7 +128,7 @@ Digit : [0-9]
 
 
 mode MVEL;
-ENDMVEL : ('end' | 'end\n') -> mode(DEFAULT_MODE) ;
+ENDMVEL : ('end' | 'end\n' | 'end;' | 'end;\n') -> mode(DEFAULT_MODE) ;
 LINE : ~[ \n].*? '\n';
 WS2 : [ \n]* -> skip;
 
@@ -144,14 +145,10 @@ WS2 : [ \n]* -> skip;
 
 mode Block;
 
-BLINE : (~['{''}'] )* ;
+BLINE : (~[{}] )* ;
 
 BSTRING : '"' ('\\"'|.)*? '"' {setText(getText().substring(1,getText().length()-1).replace("\\\"","\""));};
 
 BLeftBrace: '{' -> pushMode(Block), type(LeftBrace);
 
 BRightBrace: '}' -> popMode, type(RightBrace);
-
-
-
-

@@ -1,10 +1,13 @@
 package io.inceptor.drl.drl.condition.inner;
 
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.exceptions.ParseDrlRuntimeException;
 import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 public class InnerMethodCondition implements InnerCondition {
 
@@ -29,6 +32,12 @@ public class InnerMethodCondition implements InnerCondition {
         }
         exeutable = MVEL.compileExpression(statement);
     }
+
+    @Override
+    public List<SymbolClassName> getAllSymbolClassNames() {
+        return Collections.emptyList();
+    }
+
 
     @Override
     public String getSql() {

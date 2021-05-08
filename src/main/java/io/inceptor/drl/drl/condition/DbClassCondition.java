@@ -3,6 +3,7 @@ package io.inceptor.drl.drl.condition;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.JavaImportClass;
 import io.inceptor.drl.drl.condition.inner.InnerCondition;
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
@@ -80,6 +81,25 @@ public class DbClassCondition extends ClassCondition {
 
         return dst;
     }
+
+    @Override
+    public List<SymbolClassName> getAllSymbolClassNames() {
+        List<SymbolClassName> list = new LinkedList<>();
+
+        if (symbolName != null) {
+            SymbolClassName symbolClassName = new SymbolClassName();
+            symbolClassName.setSymbolName(symbolName);
+            symbolClassName.setFullJavaName(conClass.getName());
+            list.add(symbolClassName);
+        }
+
+        for (InnerCondition c : conditionList) {
+            list.addAll(c.getAllSymbolClassNames());
+        }
+
+        return list;
+    }
+
 
     public String getDatasourceName() {
         return datasourceName;

@@ -131,6 +131,18 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitOnerule(DrlParser.OneruleContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link DrlParser#ruleFlags}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRuleFlags(DrlParser.RuleFlagsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#ruleFlag}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRuleFlag(DrlParser.RuleFlagContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link DrlParser#whenClauses}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -277,6 +289,30 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMethodCall(DrlParser.MethodCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#methodParams}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodParams(DrlParser.MethodParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#methodParam}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMethodParam(DrlParser.MethodParamContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#mapParams}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapParams(DrlParser.MapParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#mapParam}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapParam(DrlParser.MapParamContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#functions}.
 	 * @param ctx the parse tree

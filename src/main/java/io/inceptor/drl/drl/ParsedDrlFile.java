@@ -9,6 +9,7 @@ import io.inceptor.drl.exceptions.DatasourceNotFoundException;
 import io.inceptor.drl.exceptions.DrlFileNoFoundException;
 import io.inceptor.drl.util.DrlSession;
 import io.inceptor.drl.util.DrlUtils;
+import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
 import org.mvel2.ParserConfiguration;
 import org.mvel2.integration.impl.*;
@@ -27,8 +28,10 @@ public class ParsedDrlFile {
     private String[] datasourceImports;
     private Set<JavaImportClass> javaImportClasses = new HashSet<>();
     private Set<DefinedFunction> definedFunctions = new HashSet<>();
+    private static Set<String> globalStaticImports = new HashSet<>();
+    private Set<String> staticImports = new HashSet<>();
     private Set<GlobalImport> globalImports = new HashSet<>();
-    private List<DeclaredClass> declaredClasses;
+    private List<DeclaredClass> declaredClasses = new LinkedList<>();
     private String globalExpr;
     private Map<String, Datasource> datasources = new HashMap();
     private Rule ruleHead;
@@ -48,14 +51,19 @@ public class ParsedDrlFile {
     static {
         classImportResolverFactory.addClass(DrlUtils.class);
 
+
         try {
             for (Method method : StaticFunction.class.getMethods()) {
-                if (method.getDeclaredAnnotation(DrlFunction.class) != null)
+                if (method.getDeclaredAnnotation(DrlFunction.class) != null) {
                     classImportResolverFactory.createVariable(method.getName(), method);
+                }
             }
         } catch (SecurityException e) {
             throw new RuntimeException("Something wrong when invoke static in ParsedDrlFile.java", e);
         }
+
+        globalStaticImports.add(Utils.staticImport(DrlUtils.class));
+        globalStaticImports.add(Utils.staticImport(StaticFunction.class));
     }
 
     public void init(DrlSession session) {
@@ -68,6 +76,8 @@ public class ParsedDrlFile {
         globalResolverFactory.setNextFactory(classImportResolverFactory);
 
         initJavaImport();
+
+        initStaticImport();
 
         initImportDatasources(datasourceImports);
 
@@ -84,7 +94,7 @@ public class ParsedDrlFile {
         initGlobal();
 
         if (ruleHead != null)
-            ruleHead.init(declaredClasses, javaImportClasses, datasources, this, session, globalResolverFactory);
+            ruleHead.init(location ,definedFunctions,globalImports , declaredClasses, javaImportClasses,staticImports , datasources, this, session, globalResolverFactory);
 
         ruleEntry.init(ruleHead);
 
@@ -144,6 +154,10 @@ public class ParsedDrlFile {
         javaImportClasses.addAll(add);
     }
 
+    private void initStaticImport() {
+        staticImports.addAll(globalStaticImports);
+    }
+
     private void initImportDatasources(String[] datasourceImports) {
         if (datasourceImports == null)
             return;
@@ -186,8 +200,10 @@ public class ParsedDrlFile {
 
     private void initDefinedFunctions() {
         for (DefinedFunction function : definedFunctions) {
-            function.init(location, javaImportClasses.stream().map(JavaImportClass::getFullJavaName).collect(Collectors.toSet()), null);
+            function.init(location, javaImportClasses.stream().map(JavaImportClass::getFullJavaName).collect(Collectors.toSet()), staticImports);
             globalResolverFactory.createVariable(function.getMethodName(), function.getOnMethod());
+
+            staticImports.add(function.getImportSentence());
         }
 
     }
@@ -272,8 +288,12 @@ public class ParsedDrlFile {
         return declaredClasses;
     }
 
-    public void setDeclaredClasses(List<DeclaredClass> declaredClasses) {
-        this.declaredClasses = declaredClasses;
+//    public void setDeclaredClasses(List<DeclaredClass> declaredClasses) {
+//        this.declaredClasses = declaredClasses;
+//    }
+
+    public void addDeclaredClasses(DeclaredClass declaredClass) {
+        this.declaredClasses.add(declaredClass);
     }
 
     public Rule getRuleHead() {

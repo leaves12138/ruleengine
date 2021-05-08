@@ -23,7 +23,7 @@ public class DefinedFunction {
     private Class onClass;
     private Method onMethod;
 
-    private static InMemoryJavaCompiler inMemoryJavaCompiler = InMemoryJavaCompiler.newInstance();
+    private static InMemoryJavaCompiler inMemoryJavaCompiler = InMemoryJavaCompiler.instance();
 
     private static String temp;
     {
@@ -107,7 +107,7 @@ public class DefinedFunction {
     }
 
     public String getImportSentence() {
-        return "import static " + packageName + "." + className + ";";
+        return packageName + "." + className + "." + methodName;
     }
 
     public String getMethodName() {

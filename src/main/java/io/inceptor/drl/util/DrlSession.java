@@ -27,6 +27,10 @@ public class DrlSession {
 
     private boolean stopped;
 
+    static {
+        SecondTimeWheel.start();
+    }
+
     public void addDrl(String fileName, InputStream is) throws IOException {
         ParsedDrlFile pd = DrlTool.parse(is);
         drlCache.put(pd.getLocation() + "/" + fileName, pd);
@@ -80,11 +84,16 @@ public class DrlSession {
         while (!stopped) {
             try {
                 Object c = objectQueue.take();
-                ruleEntry.accept(c);
+                if (c instanceof  List) {
+                    ruleEntry.accept((List<Object>) c);
+                }
+                else
+                    ruleEntry.accept(c);
             } catch (InterruptedException e) {
                 throw new RuntimeException("drl back session iterrupted");
             }
         }
+        close();
     }
 
     public void fireOnce() {
@@ -94,18 +103,18 @@ public class DrlSession {
             throw new RuntimeException("can't find drl file " + entrance + " in cache");
         ParsedDrlFile file = drlCache.get(entrance);
         file.init(this);
-        Rule rule = file.getHeadRule();
-        stopped = false;
+        RuleEntry ruleEntry = file.getRuleEntry();
         Object c;
         try {
             while ((c = objectQueue.poll()) != null) {
                 if (c instanceof  List) {
-                    rule.accept((List<Object>) c);
+                    ruleEntry.accept((List<Object>) c);
                 }
                 else
-                    rule.accept(c);
+                    ruleEntry.accept(c);
             }
         } catch (Exception e) {
+            throw new RuntimeException(e);
         }
         close();
     }
@@ -179,5 +188,4 @@ public class DrlSession {
             datasource.close();
         }
     }
-
 }

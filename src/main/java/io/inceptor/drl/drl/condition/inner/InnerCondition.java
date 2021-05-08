@@ -1,13 +1,17 @@
 package io.inceptor.drl.drl.condition.inner;
 
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import org.mvel2.integration.VariableResolverFactory;
 
+import java.util.List;
 import java.util.Map;
 
 public interface InnerCondition {
     //    String getClassName();
     boolean evaluate(Object o, VariableResolverFactory variableResolverFactory);
+
+    List<SymbolClassName> getAllSymbolClassNames();
 
     void init(Class c);
 

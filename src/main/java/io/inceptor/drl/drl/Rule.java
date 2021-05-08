@@ -2,13 +2,21 @@ package io.inceptor.drl.drl;
 
 import io.inceptor.drl.drl.action.Action;
 import io.inceptor.drl.drl.condition.Condition;
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.dialect.Dialect;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
+import io.inceptor.drl.exceptions.InitializationException;
+import io.inceptor.drl.exceptions.TypeNotMatchException;
 import io.inceptor.drl.util.DrlSession;
+import io.inceptor.drl.util.SecondTimeWheel;
+import io.inceptor.drl.util.Utils;
 import org.mvel2.integration.VariableResolverFactory;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 
+import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Rule {
     private String text;
@@ -35,10 +43,18 @@ public class Rule {
 
     private boolean inited = false;
 
-    public void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session, VariableResolverFactory global) {
+    private Set<FlagTypeValue> flags = new HashSet<>();
+
+    private long ruleStartTime = -1;
+
+    private long ruleEndTime = -1;
+
+    public void init(String packageName, Set<DefinedFunction> definedFunctions,Set<GlobalImport> globalImports ,List<DeclaredClass> declaredClasses , Set<JavaImportClass> javaImportClasses,Set<String> staticImports, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session, VariableResolverFactory global) {
         if (!inited) {
             this.session = session;
             this.parsedDrlFile = parsedDrlFile;
+
+            initRuleFlag();
 
             symbolTable = new SymbolTable();
 
@@ -55,17 +71,45 @@ public class Rule {
             ruleMapVariableResovlverFactory.setNextFactory(global);
 
             for (Condition condition : conditions) {
-                condition.init(list, javaImportClasses, dataSources);
+                condition.init(declaredClasses, javaImportClasses, dataSources);
             }
 
-            action.compile(ParsedDrlFile.classImportResolverFactory.getImportedClasses());
+            if (action.getDialect() == Dialect.JAVA)
+                action.compile(packageName, name, javaImportClasses.stream().map(s -> s.getFullJavaName()).collect(Collectors.toSet()), staticImports, getParams(globalImports));
+            else
+                action.compile(ParsedDrlFile.classImportResolverFactory.getImportedClasses());
 
             inited = true;
         }
 
         if (next != null) {
-            next.init(list, javaImportClasses, dataSources, parsedDrlFile, session, global);
+            next.init(packageName, definedFunctions, globalImports, declaredClasses, javaImportClasses,staticImports ,dataSources, parsedDrlFile, session, global);
         }
+    }
+
+    private void initRuleFlag() {
+        flags.stream().forEach(flag -> {
+            switch (flag.flagType) {
+                case DateEffective: {
+                    try {
+                        ruleStartTime = Utils.parseTime(flag.value);
+                    } catch (ParseException e) {
+                        throw new InitializationException("can parse rule start time", e);
+                    }
+                    break;
+                }
+
+                case DateExpires: {
+                    try {
+                        ruleEndTime = Utils.parseTime(flag.value);
+                    } catch (ParseException e) {
+                        throw new InitializationException("can parse rule end time", e);
+                    }
+                    break;
+                }
+
+            }
+        });
     }
 
     public void accept(Object o) {
@@ -97,6 +141,13 @@ public class Rule {
     }
 
     private boolean shouldIInvoke() {
+
+        if (ruleStartTime != -1 && SecondTimeWheel.getMilliTime() < ruleStartTime)
+            return false;
+
+        if (ruleEndTime != -1 && SecondTimeWheel.getMilliTime() > ruleEndTime)
+            return false;
+
         return parsedDrlFile.shouldIInvoke(this);
     }
 
@@ -156,6 +207,23 @@ public class Rule {
         return parsedDrlFile.removeOnce(ruleName);
     }
 
+    public List<SymbolClassName> getParams(Set<GlobalImport> globalImports) {
+        List<SymbolClassName> list = new LinkedList<>();
+
+        for (Condition condition : conditions) {
+            list.addAll(condition.getAllSymbolClassNames());
+        }
+
+        for (GlobalImport globalImport : globalImports) {
+            SymbolClassName symbolClassName = new SymbolClassName();
+            symbolClassName.setSymbolName(globalImport.getGlobalName());
+            symbolClassName.setFullJavaName(globalImport.getGlobalType());
+            list.add(symbolClassName);
+        }
+
+        return list;
+    }
+
     public String getText() {
         return text;
     }
@@ -188,4 +256,44 @@ public class Rule {
         this.action = action;
     }
 
+    public void addFlag(FlagTypeValue f) {
+        this.flags.add(f);
+    }
+
+
+    public enum FlagType {
+        DateEffective("date-effective"),
+        DateExpires("date-expires");
+
+        private String name;
+
+        FlagType(String name) {
+            this.name = name;
+        }
+
+        public static FlagType match(String name) throws TypeNotMatchException {
+            switch (name) {
+                case "date-effective" :
+                    return DateEffective;
+                case "date-expires" :
+                    return DateExpires;
+                default:
+                    throw new TypeNotMatchException();
+            }
+        }
+    }
+
+    public static class FlagTypeValue {
+        private FlagType flagType;
+        private String value;
+
+        public FlagTypeValue(FlagType type, String value) {
+            this.flagType = type;
+            this.value = value;
+        }
+
+        public static FlagTypeValue valueOf(String flagName, String value) {
+            return new FlagTypeValue(FlagType.match(flagName), value);
+        }
+    }
 }

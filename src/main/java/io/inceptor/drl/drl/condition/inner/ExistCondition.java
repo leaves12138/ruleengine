@@ -3,6 +3,7 @@ package io.inceptor.drl.drl.condition.inner;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.ParseContext;
+import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
@@ -12,6 +13,9 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static io.inceptor.drl.drl.condition.inner.LeftValue.Type.JSON;
@@ -135,6 +139,17 @@ public class ExistCondition implements InnerCondition {
                 throw new InitializationException("can't support method type: " + leftValue.getType());
             }
         }
+    }
+
+    @Override
+    public List<SymbolClassName> getAllSymbolClassNames() {
+        if (symbolName != null && fieldClass != null) {
+            SymbolClassName symbolClassName = new SymbolClassName();
+            symbolClassName.setSymbolName(symbolName);
+            symbolClassName.setFullJavaName(fieldClass.getName());
+            return Arrays.asList(symbolClassName);
+        }
+        return Collections.emptyList();
     }
 
 
