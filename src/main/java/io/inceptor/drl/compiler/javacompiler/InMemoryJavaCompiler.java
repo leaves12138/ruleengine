@@ -2,6 +2,9 @@ package io.inceptor.drl.compiler.javacompiler;
 
 import io.inceptor.drl.classloader.ClassLoaderFactory;
 import io.inceptor.drl.classloader.DrlClassLoader;
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler2;
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompilerImpl;
 
 import javax.tools.*;
 import java.util.*;
@@ -19,12 +22,22 @@ public class InMemoryJavaCompiler {
 
 	private static InMemoryJavaCompiler inMemoryJavaCompiler = new InMemoryJavaCompiler();
 
+	static {
+		List<String> optionsList = new ArrayList<>();
+		optionsList.addAll(Arrays.asList("-source","1.8","-target","1.8","-nowarn"));
+		optionsList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path")));
+
+		inMemoryJavaCompiler.useOptions(optionsList.toArray(new String[optionsList.size()]));
+		inMemoryJavaCompiler.ignoreWarnings();
+	}
+
 	public static InMemoryJavaCompiler instance() {
 		return inMemoryJavaCompiler;
 	}
 
 	private InMemoryJavaCompiler() {
 		this.javac = ToolProvider.getSystemJavaCompiler();
+//		this.javac = new EclipseCompiler2();
 		this.classLoader = ClassLoaderFactory.getDrlClassLoader();
 	}
 

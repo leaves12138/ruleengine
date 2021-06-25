@@ -18,6 +18,16 @@ public interface DrlParserListener extends ParseTreeListener {
 	 */
 	void exitFile(DrlParser.FileContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link DrlParser#dialect}.
+	 * @param ctx the parse tree
+	 */
+	void enterDialect(DrlParser.DialectContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#dialect}.
+	 * @param ctx the parse tree
+	 */
+	void exitDialect(DrlParser.DialectContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link DrlParser#pack}.
 	 * @param ctx the parse tree
 	 */
@@ -238,6 +248,18 @@ public interface DrlParserListener extends ParseTreeListener {
 	 */
 	void exitWhenClauses(DrlParser.WhenClausesContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code fromMethodCall}
+	 * labeled alternative in {@link DrlParser#whenClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterFromMethodCall(DrlParser.FromMethodCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code fromMethodCall}
+	 * labeled alternative in {@link DrlParser#whenClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitFromMethodCall(DrlParser.FromMethodCallContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code fromStream}
 	 * labeled alternative in {@link DrlParser#whenClause}.
 	 * @param ctx the parse tree
@@ -261,18 +283,6 @@ public interface DrlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFromDs(DrlParser.FromDsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code fromMethodCall}
-	 * labeled alternative in {@link DrlParser#whenClause}.
-	 * @param ctx the parse tree
-	 */
-	void enterFromMethodCall(DrlParser.FromMethodCallContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code fromMethodCall}
-	 * labeled alternative in {@link DrlParser#whenClause}.
-	 * @param ctx the parse tree
-	 */
-	void exitFromMethodCall(DrlParser.FromMethodCallContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link DrlParser#conditions}.
 	 * @param ctx the parse tree
@@ -332,6 +342,18 @@ public interface DrlParserListener extends ParseTreeListener {
 	 */
 	void exitAndOrCondition(DrlParser.AndOrConditionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code ContainsCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 */
+	void enterContainsCondition(DrlParser.ContainsConditionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ContainsCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 */
+	void exitContainsCondition(DrlParser.ContainsConditionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code CompareCondition}
 	 * labeled alternative in {@link DrlParser#condition}.
 	 * @param ctx the parse tree
@@ -375,6 +397,16 @@ public interface DrlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitContainClause(DrlParser.ContainClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#containsClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterContainsClause(DrlParser.ContainsClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#containsClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitContainsClause(DrlParser.ContainsClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link DrlParser#existsClause}.
 	 * @param ctx the parse tree
@@ -517,6 +549,26 @@ public interface DrlParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMapParam(DrlParser.MapParamContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#mapkey}.
+	 * @param ctx the parse tree
+	 */
+	void enterMapkey(DrlParser.MapkeyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#mapkey}.
+	 * @param ctx the parse tree
+	 */
+	void exitMapkey(DrlParser.MapkeyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link DrlParser#mapvalue}.
+	 * @param ctx the parse tree
+	 */
+	void enterMapvalue(DrlParser.MapvalueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link DrlParser#mapvalue}.
+	 * @param ctx the parse tree
+	 */
+	void exitMapvalue(DrlParser.MapvalueContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link DrlParser#functions}.
 	 * @param ctx the parse tree

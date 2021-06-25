@@ -23,6 +23,9 @@ public class DrlClassLoader extends ClassLoader {
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         CompiledCode cc = customCompiledCode.get(name);
         if (cc == null) {
+            cc = customCompiledCode.get(name.replace(".","/"));
+        }
+        if (cc == null) {
             return super.findClass(name);
         }
         byte[] byteCode = cc.getByteCode();

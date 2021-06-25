@@ -130,7 +130,7 @@ public class DsTreeVisitor extends DsParserBaseVisitor<List<Datasource>> {
             throw new ParseDrlRuntimeException("kafka datasource must have user defined properties");
         for (DsParser.UserDefineBranchContext context : userDefineBranchContexts) {
             String key = context.name.getText();
-            Object value = context.value instanceof DrlParser.NumberBranchContext ? Integer.valueOf(context.value.getText()) : context.value.getText();
+            Object value = context.rightValue instanceof DrlParser.NumberBranchContext ? Integer.valueOf(context.rightValue.getText()) : context.rightValue.getText();
             properties.put(key, value);
         }
         return new KafkaDatasource(name, properties);

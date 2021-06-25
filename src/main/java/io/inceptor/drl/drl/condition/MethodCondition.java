@@ -2,10 +2,14 @@ package io.inceptor.drl.drl.condition;
 
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.JavaImportClass;
+import io.inceptor.drl.drl.condition.inner.InnerMethodCondition;
+import io.inceptor.drl.drl.condition.inner.InnerResult;
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.inceptor.drl.exceptions.ParseDrlRuntimeException;
+import javassist.runtime.Inner;
 import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
 
@@ -14,41 +18,40 @@ import java.util.*;
 
 public class MethodCondition implements Condition {
 
-    private String statement;
+    private InnerMethodCondition innerMethodCondition;
 
-    private Serializable exeutable;
+    public MethodCondition(InnerMethodCondition innerMethodCondition) {
+        this.innerMethodCondition = innerMethodCondition;
+    }
 
     @Override
     public void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> datasources) {
-        if (statement == null) {
-            throw new ParseDrlRuntimeException("statement is null");
-        }
-        exeutable = MVEL.compileExpression(statement);
+        innerMethodCondition.init(null);
     }
 
     @Override
-    public List<MapVariableResolverFactory> evaluate(List<Object> os, List<MapVariableResolverFactory> vars) {
-        List<MapVariableResolverFactory> rm = new LinkedList<>();
+    public ClassResult evaluate(List<Fact> os, List<MapVariableResolverFactory> vars) {
+        ClassResult classResult = new ClassResultImpl();
         for (MapVariableResolverFactory var : vars) {
-            Object re = MVEL.executeExpression(exeutable, var);
-            if (re instanceof Boolean) {
-                if (!(boolean)re)
-                    rm.add(var);
+            InnerResult result = innerMethodCondition.evaluate(null, var);
+            if (!result.isFuture()) {
+                if (!result.pass()) {
+                    continue;
+                }
             }
+
+            if (result.isFuture()) {
+                classResult.addFutureResult(result, var);
+            }
+
+            classResult.addResult(var);
         }
-        vars.removeAll(rm);
-        return vars;
+        return classResult;
     }
 
     @Override
-    public boolean evaluate(Object o, VariableResolverFactory var) {
-        Object re = MVEL.executeExpression(statement, var);
-
-        if (re instanceof Boolean) {
-            return (boolean)re;
-        }
-
-        return true;
+    public boolean evaluate(Fact o, VariableResolverFactory var) {
+        return innerMethodCondition.evaluate(null, var).pass();
     }
 
     @Override
@@ -56,13 +59,17 @@ public class MethodCondition implements Condition {
         return Collections.emptyList();
     }
 
-
-
-    public String getStatement() {
-        return statement;
+    @Override
+    public String getClassName() {
+        return "[METHOD]";
     }
 
-    public void setStatement(String statement) {
-        this.statement = statement;
+    @Override
+    public void clear() {
+        innerMethodCondition.clear();
+    }
+
+    public void setNot() {
+        innerMethodCondition.setNot();
     }
 }

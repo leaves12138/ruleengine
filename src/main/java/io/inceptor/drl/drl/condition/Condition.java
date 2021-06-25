@@ -4,6 +4,7 @@ import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.JavaImportClass;
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import org.mvel2.integration.VariableResolverFactory;
 
@@ -15,9 +16,13 @@ public interface Condition {
 
     void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> datasources);
 
-    List<MapVariableResolverFactory> evaluate(List<Object> os, List<MapVariableResolverFactory> vars);
+    ClassResult evaluate(List<Fact> os, List<MapVariableResolverFactory> vars);
 
-    boolean evaluate(Object o, VariableResolverFactory var);
+    boolean evaluate(Fact o, VariableResolverFactory var);
 
     List<SymbolClassName> getAllSymbolClassNames();
+
+    String getClassName();
+
+    void clear();
 }

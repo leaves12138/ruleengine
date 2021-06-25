@@ -74,7 +74,11 @@ public class DefinedFunction {
                 }
             }
         } catch (Exception e) {
-            throw new InitializationException("error happens when compiler defined functions" ,e);
+            String imp = "";
+            for (String s : imports) {
+                imp += s + "\n";
+            }
+            throw new InitializationException("error happens when compiler defined functions: " + code + "\n" + imp ,e);
         }
 
         inited = true;

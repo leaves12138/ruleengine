@@ -333,7 +333,7 @@ public class DsParser extends Parser {
 	}
 	public static class UserDefineBranchContext extends FieldContext {
 		public Token name;
-		public Token value;
+		public Token rightValue;
 		public TerminalNode Colon() { return getToken(DsParser.Colon, 0); }
 		public List<TerminalNode> STRING() { return getTokens(DsParser.STRING); }
 		public TerminalNode STRING(int i) {
@@ -530,13 +530,13 @@ public class DsParser extends Parser {
 				case STRING:
 					{
 					setState(48);
-					((UserDefineBranchContext)_localctx).value = match(STRING);
+					((UserDefineBranchContext)_localctx).rightValue = match(STRING);
 					}
 					break;
 				case NUMBER:
 					{
 					setState(49);
-					((UserDefineBranchContext)_localctx).value = match(NUMBER);
+					((UserDefineBranchContext)_localctx).rightValue = match(NUMBER);
 					}
 					break;
 				default:

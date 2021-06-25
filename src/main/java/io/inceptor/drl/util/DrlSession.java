@@ -5,9 +5,11 @@ import io.inceptor.drl.drl.ParsedDrlFile;
 import io.inceptor.drl.drl.Rule;
 import io.inceptor.drl.drl.RuleEntry;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.fact.Fact;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,9 +25,15 @@ public class DrlSession {
 
     private Map<String, Object> globalMap = new HashMap<>();
 
+    public Map<String, String> trees = new HashMap<>();
+
+    private RuleEntry entry;
+
     private String entrance;
 
     private boolean stopped;
+
+    public boolean treeModeOn = false;
 
     static {
         SecondTimeWheel.start();
@@ -73,22 +81,16 @@ public class DrlSession {
     }
 
     public void fireUtilHalt() {
-        if (entrance == null)
-            throw new RuntimeException("there is no entrance in this session");
-        if (!drlCache.containsKey(entrance))
-            throw new RuntimeException("can't find drl file " + entrance + " in cache");
-        ParsedDrlFile file = drlCache.get(entrance);
-        file.init(this);
-        RuleEntry ruleEntry = file.getRuleEntry();
+        initEntry();
         stopped = false;
         while (!stopped) {
             try {
                 Object c = objectQueue.take();
                 if (c instanceof  List) {
-                    ruleEntry.accept((List<Object>) c);
+                    entry.accept((List<Fact>) c);
                 }
                 else
-                    ruleEntry.accept(c);
+                    entry.accept((Fact)c);
             } catch (InterruptedException e) {
                 throw new RuntimeException("drl back session iterrupted");
             }
@@ -97,21 +99,15 @@ public class DrlSession {
     }
 
     public void fireOnce() {
-        if (entrance == null)
-            throw new RuntimeException("there is no entrance in this session");
-        if (!drlCache.containsKey(entrance))
-            throw new RuntimeException("can't find drl file " + entrance + " in cache");
-        ParsedDrlFile file = drlCache.get(entrance);
-        file.init(this);
-        RuleEntry ruleEntry = file.getRuleEntry();
+        initEntry();
         Object c;
         try {
             while ((c = objectQueue.poll()) != null) {
                 if (c instanceof  List) {
-                    ruleEntry.accept((List<Object>) c);
+                    entry.accept((List<Fact>) c);
                 }
                 else
-                    ruleEntry.accept(c);
+                    entry.accept((Fact) c);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -128,7 +124,7 @@ public class DrlSession {
     }
 
     public boolean offer(Object o) {
-        return objectQueue.offer(o);
+        return objectQueue.offer(wapper(o));
     }
 
     public boolean put(Object o) {
@@ -136,7 +132,7 @@ public class DrlSession {
             while (objectQueue.size() > 10000) {
                 Thread.sleep(100);
             }
-            objectQueue.put(o);
+            objectQueue.put(wapper(o));
         } catch (InterruptedException e) {
             return false;
         }
@@ -183,9 +179,48 @@ public class DrlSession {
         return globalMap.get(name);
     }
 
+    public void clear() {
+        if (entry != null)
+            entry.clear();
+    }
+
     public void close() {
         for (Datasource datasource : dsCache.values()) {
             datasource.close();
         }
+    }
+
+    public void initEntry() {
+        if (entry == null) {
+            if (entrance == null)
+                throw new RuntimeException("there is no entrance in this session");
+            if (!drlCache.containsKey(entrance))
+                throw new RuntimeException("can't find drl file " + entrance + " in cache");
+            ParsedDrlFile file = drlCache.get(entrance);
+            file.init(this);
+            entry = file.getRuleEntry();
+        }
+    }
+
+    public void setTreeMode(Boolean treeModeOn) {
+        this.treeModeOn = treeModeOn;
+    }
+
+    public void addTree(String treeName, String treeJson) {
+        trees.put(treeName, treeJson);
+    }
+
+    private Object wapper(Object o) {
+        if (o == null) {
+            return Fact.NullFact;
+        }
+
+        if (o instanceof List) {
+            List<Fact> list = new ArrayList<>();
+            ((List)o).forEach(t -> list.add(Fact.of(t)));
+            return list;
+        }
+
+        return Fact.of(o);
     }
 }

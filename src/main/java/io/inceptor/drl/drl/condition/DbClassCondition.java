@@ -5,6 +5,7 @@ import io.inceptor.drl.drl.JavaImportClass;
 import io.inceptor.drl.drl.condition.inner.InnerCondition;
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
 import io.vertx.core.Future;
@@ -37,7 +38,7 @@ public class DbClassCondition extends ClassCondition {
     }
 
     @Override
-    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
+    public boolean evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
 
 
         List<Object> results;
@@ -60,11 +61,12 @@ public class DbClassCondition extends ClassCondition {
     }
 
     @Override
-    public List<MapVariableResolverFactory> evaluate(List<Object> os, List<MapVariableResolverFactory> vars) {
+    public ClassResult evaluate(List<Fact> os, List<MapVariableResolverFactory> vars) {
 
-        List<MapVariableResolverFactory> dst = new LinkedList<>();
+        ClassResult classResult = new ClassResultImpl();
+//        List<MapVariableResolverFactory> dst = new LinkedList<>();
 
-        for (Object o : os) {
+        for (Fact o : os) {
             middle:
             for (MapVariableResolverFactory var : vars) {
                 Map<String, Object> mapCloned = (Map<String, Object>) ((HashMap) var.getVarMap()).clone();
@@ -75,11 +77,12 @@ public class DbClassCondition extends ClassCondition {
                 if (symbolName != null) {
                     mapCloned.put(symbolName, o);
                 }
-                dst.add(variableResolverFactory);
+                classResult.addResult(variableResolverFactory);
+//                dst.add(variableResolverFactory);
             }
         }
 
-        return dst;
+        return classResult;
     }
 
     @Override

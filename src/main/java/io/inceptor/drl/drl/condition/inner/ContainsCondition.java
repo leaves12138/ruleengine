@@ -1,30 +1,21 @@
 package io.inceptor.drl.drl.condition.inner;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.jayway.jsonpath.ParseContext;
+
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.exceptions.InitializationException;
-import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
 import org.mvel2.integration.VariableResolverFactory;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.*;
 
 import static io.inceptor.drl.drl.condition.inner.LeftValue.Type.*;
 
-public class CompareCondition implements InnerCondition {
-
-    static private ObjectReader objectReader = Utils.getObjectReader();
-    static private ParseContext parseContextEx = Utils.getParseContextEx();
+public class ContainsCondition implements InnerCondition {
 
     private Class fieldClass;
     private String symbolName;
@@ -34,16 +25,14 @@ public class CompareCondition implements InnerCondition {
     private String symbol;
     private RightValue right;
 
-
-    private String leftJsonPath;
     private Method getter;
-    private Method compare;
+    private Method contains;
     private Object value;
     private boolean isRightMethodCall;
     private Serializable leftExpression;
     private Serializable rightExpression;
-    private boolean staticCompare = false;
     private Type classType;
+    private boolean not = false;
 
     private Map<Object, InnerResult> cachedResult = new HashMap();
 
@@ -74,11 +63,7 @@ public class CompareCondition implements InnerCondition {
                     Field f = c.getDeclaredField(leftValue.getLeftField());
                     f.setAccessible(true);
                     fieldClass = f.getType();
-                    if (leftValue.getType() == JSON)
-                        if (!JsonNode.class.isAssignableFrom(fieldClass))
-                            throw new InitializationException("left value is json path, field type must be json");
-                        else
-                            leftJsonPath = "$" + leftValue.getContent().substring(leftValue.getLeftField().length());
+                    checkField();
                 }
             } else {
                 leftExpression = MVEL.compileExpression(leftValue.getContent());
@@ -88,15 +73,10 @@ public class CompareCondition implements InnerCondition {
 
             if (!isRightMethodCall && fieldClass != null) {
                 value = getStaticRightValue();
-            } else if ( isRightMethodCall ) {
-                rightExpression = MVEL.compileExpression(right.getValue());
             } else {
-
+                rightExpression = MVEL.compileExpression(right.getValue());
             }
-
-            if (fieldClass != null)
-                initCompare();
-
+            initContains();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("can't init condition " + leftValue.getContent() + symbol + right.getValue() + ", because can't find the method on field \"" + leftValue.getLeftField() + "\"", e);
         } catch (NoSuchFieldException e) {
@@ -114,41 +94,15 @@ public class CompareCondition implements InnerCondition {
         leftCache.clear();
     }
 
-    private void initCompare() throws Exception {
-        switch (symbol) {
-            case InnerCondition.EQUAL:
-            case InnerCondition.NOTEUQAL: {
-                compare = fieldClass.getMethod(InnerCondition.METHOD_EQUALS, Object.class);
-                break;
-            }
-            case InnerCondition.GREATER:
-            case InnerCondition.LESS:
-            case InnerCondition.GREATEREQUAL:
-            case InnerCondition.LESSQUAL: {
-                testComparable();
-                compare = getCompare();
-            }
-        }
+    private void initContains() throws Exception {
+        contains = Collection.class.getDeclaredMethod("contains", Object.class);
     }
 
-    private boolean testComparable() {
-        if (JsonNode.class.isAssignableFrom(fieldClass))
-            return true;
-        if (Comparable.class.isAssignableFrom(fieldClass)) {
-            return true;
-        }
-        throw new InitializationException(fieldClass.getName() + " can't compare");
-    }
-
-    private Method getCompare() throws NoSuchMethodException {
-        if (fieldClass.isAssignableFrom(JsonNode.class)) {
-            staticCompare = true;
-            return CompareCondition.class.getMethod("compare", Object.class, Object.class);
-        }
-        if (classType == Type.Normal)
-            return fieldClass.getMethod(InnerCondition.METHOD_COMPARETO, Object.class);
-        else
-            return Comparable.class.getMethod(InnerCondition.METHOD_COMPARETO, Object.class);
+    private boolean checkField() {
+        assert fieldClass != null;
+        if (!Collection.class.isAssignableFrom(fieldClass))
+            throw new InitializationException(fieldClass.getName() + " can't invoke contains");
+        return true;
     }
 
     @Override
@@ -160,7 +114,6 @@ public class CompareCondition implements InnerCondition {
             if (cachedEnabled()) {
                 InnerResult re = cachedResult.getOrDefault(o, null);
                 if (re != null) {
-//                    InnerResult re = cachedResult.get(o);
                     if (re.pass()) {
                         if (symbolName != null)
                             variableResolverFactory.createVariable(symbolName, leftCache.get(o));
@@ -180,17 +133,17 @@ public class CompareCondition implements InnerCondition {
         }
     }
 
-    private InnerResult _evaluate(Fact o, VariableResolverFactory variableResolverFactory) throws Exception {
-        Object left = getLeftValue(o.get(), variableResolverFactory);
+    private InnerResult _evaluate(Object o, VariableResolverFactory variableResolverFactory) throws Exception {
+        Object left = getLeftValue(o, variableResolverFactory);
         if (left == null)
             return InnerResult.falseResult;
 
         // invoke once
         if (fieldClass == null) {
             fieldClass = left.getClass();
+            checkField();
             if (!isRightMethodCall)
                 value = getStaticRightValue();
-            initCompare();
         }
 
         left = resolveLeftValue(left);
@@ -199,7 +152,7 @@ public class CompareCondition implements InnerCondition {
             leftCache.put(o, left);
         }
 
-        if (invokeCompare(left, variableResolverFactory)) {
+        if (invokeContains(left, variableResolverFactory)) {
             if (symbolName != null)
                 variableResolverFactory.createVariable(symbolName, left);
             return InnerResult.trueResult;
@@ -223,40 +176,8 @@ public class CompareCondition implements InnerCondition {
     }
 
 
-
-    private boolean invokeCompare(Object left, VariableResolverFactory variableResolverFactory) throws Exception {
-
-        switch (symbol) {
-            case InnerCondition.EQUAL: {
-                return (Boolean) compare.invoke(left, getRightValue(variableResolverFactory));
-            }
-            case InnerCondition.NOTEUQAL: {
-                return !(Boolean) compare.invoke(left, getRightValue(variableResolverFactory));
-            }
-            case InnerCondition.GREATER: {
-                if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getRightValue(variableResolverFactory)) > 0;
-                return (Integer) compare.invoke(left, getRightValue(variableResolverFactory)) > 0;
-            }
-            case InnerCondition.LESS: {
-                if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getRightValue(variableResolverFactory)) < 0;
-                return (Integer) compare.invoke(left, getRightValue(variableResolverFactory)) < 0;
-            }
-            case InnerCondition.GREATEREQUAL: {
-                if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getRightValue(variableResolverFactory)) >= 0;
-                return (Integer) compare.invoke(left, getRightValue(variableResolverFactory)) >= 0;
-            }
-            case InnerCondition.LESSQUAL: {
-                if (staticCompare)
-                    return (Integer) compare.invoke(null, left, getRightValue(variableResolverFactory)) <= 0;
-                return (Integer) compare.invoke(left, getRightValue(variableResolverFactory)) <= 0;
-            }
-            default: {
-                throw new RuntimeException("can't match symbol " + symbol);
-            }
-        }
+    private boolean invokeContains(Object left, VariableResolverFactory variableResolverFactory) throws Exception {
+        return (Boolean) contains.invoke(left, getRightValue(variableResolverFactory)) ^ not;
     }
 
 
@@ -272,7 +193,7 @@ public class CompareCondition implements InnerCondition {
         if (leftValue.getType() == METHODCALL) {
             if (leftExpression != null)
                 return MVEL.executeExpression(leftExpression, variableResolverFactory);
-            throw new RuntimeException("no leftExpression in comparecondition");
+            throw new RuntimeException("no leftExpression in containscondition");
         } else {
             return invokeGetter(o);
         }
@@ -291,10 +212,6 @@ public class CompareCondition implements InnerCondition {
                 return left;
             }
 
-            case JSON: {
-                return parseContextEx.parse(left).read(leftJsonPath, JsonNode.class);
-            }
-
             default: {
                 throw new InitializationException("can't support method type: " + leftValue.getType());
             }
@@ -302,30 +219,7 @@ public class CompareCondition implements InnerCondition {
     }
 
     private Object getStaticRightValue() {
-        try {
-            if (JsonNode.class.isAssignableFrom(fieldClass))
-                return objectReader.readValue(convertJsonValue(right));
-            if (Time.class.isAssignableFrom(fieldClass))
-                return Time.valueOf(right.getValue());
-            if (Timestamp.class.isAssignableFrom(fieldClass))
-                return Timestamp.valueOf(right.getValue());
-            if (Character.class.isAssignableFrom(fieldClass))
-                return Character.valueOf(right.getValue().charAt(0));
-            else {
-                Constructor fieldConstructor = fieldClass.getConstructor(String.class);
-                fieldConstructor.setAccessible(true);
-                return fieldConstructor.newInstance(right.getValue());
-            }
-        } catch (Exception e) {
-            throw new InitializationException(e);
-        }
-    }
-
-    private String convertJsonValue(RightValue right) {
-        if (right.getType() == RightValue.Type.STRING) {
-            return "\"" + right.getValue() + "\"";
-        } else return right.getValue();
-
+        return right.getValue();
     }
 
     public String getSql() {
@@ -352,22 +246,13 @@ public class CompareCondition implements InnerCondition {
         this.symbol = symbol;
     }
 
-    public String getSymbolName() {
-        return symbolName;
-    }
-
     public void setSymbolName(String symbolName) {
         this.symbolName = symbolName;
-    }
-
-    public RightValue getRight() {
-        return right;
     }
 
     public void setRight(RightValue right) {
         this.right = right;
     }
-
 
     public void setLeftValue(LeftValue leftValue) {
         this.leftValue = leftValue;
@@ -377,10 +262,7 @@ public class CompareCondition implements InnerCondition {
         this.expr = expr;
     }
 
-    static public int compare(Object o1, Object o2) {
-        if (JsonNode.class.isAssignableFrom(o1.getClass()) && JsonNode.class.isAssignableFrom(o2.getClass())) {
-            return ((JsonNode) o1).decimalValue().compareTo(((JsonNode) o2).decimalValue());
-        }
-        return -1;
+    public void isNot(boolean not) {
+        this.not = not;
     }
 }

@@ -28,6 +28,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDialect(DrlParser.DialectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDialect(DrlParser.DialectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPack(DrlParser.PackContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -292,6 +304,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterFromMethodCall(DrlParser.FromMethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFromMethodCall(DrlParser.FromMethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFromStream(DrlParser.FromStreamContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -311,18 +335,6 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFromDs(DrlParser.FromDsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFromMethodCall(DrlParser.FromMethodCallContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFromMethodCall(DrlParser.FromMethodCallContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -388,6 +400,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterContainsCondition(DrlParser.ContainsConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitContainsCondition(DrlParser.ContainsConditionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterCompareCondition(DrlParser.CompareConditionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -431,6 +455,18 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitContainClause(DrlParser.ContainClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterContainsClause(DrlParser.ContainsClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitContainsClause(DrlParser.ContainsClauseContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -587,6 +623,30 @@ public class DrlParserBaseListener implements DrlParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMapParam(DrlParser.MapParamContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMapkey(DrlParser.MapkeyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMapkey(DrlParser.MapkeyContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMapvalue(DrlParser.MapvalueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMapvalue(DrlParser.MapvalueContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,6 +1,7 @@
 package io.inceptor.drl.drl.action;
 
 import com.google.gson.internal.$Gson$Preconditions;
+import io.inceptor.drl.classloader.ClassLoaderFactory;
 import io.inceptor.drl.compiler.javacompiler.InMemoryJavaCompiler;
 import io.inceptor.drl.drl.DefinedFunction;
 import io.inceptor.drl.drl.GlobalImport;
@@ -10,8 +11,11 @@ import io.inceptor.drl.drl.dialect.Dialect;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.inceptor.drl.exceptions.CannotInvokeMethodException;
 import io.inceptor.drl.exceptions.InitializationException;
+import org.mvel2.UnresolveablePropertyException;
 import org.mvel2.integration.VariableResolverFactory;
 import org.mvel2.templates.TemplateRuntime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -20,6 +24,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavaActionImpl implements Action {
+
+    static Logger log = LoggerFactory.getLogger(JavaActionImpl.class);
+
+    static {
+
+    }
 
     private String actionCode;
 
@@ -32,6 +42,10 @@ public class JavaActionImpl implements Action {
     private List<String> paramNames;
 
     private List<String> paramTypes;
+
+    private InMemoryJavaCompiler inMemoryJavaCompiler;
+
+    private String fullJavaName;
 
     @Override
     public String getCode() {
@@ -70,19 +84,36 @@ public class JavaActionImpl implements Action {
             javaActionCompilation.setBody(actionCode);
 
             String classCode = javaActionCompilation.generateCode();
-            InMemoryJavaCompiler inMemoryJavaCompiler = InMemoryJavaCompiler.instance();
-            String fullJavaName = packageName + "." + className;
-            onClass = inMemoryJavaCompiler.compile(fullJavaName, classCode);
-            Method[] methods = onClass.getMethods();
-            for (Method method : methods) {
-                if ((method.getModifiers() & Modifier.STATIC) != 0 && ruleMethodName.equals(method.getName())) {
-                    onMethod = method;
-                    break;
-                }
-            }
+            inMemoryJavaCompiler = InMemoryJavaCompiler.instance();
+            fullJavaName = packageName + "." + className;
+            inMemoryJavaCompiler.addSource(fullJavaName, classCode);
+
+//            onClass = inMemoryJavaCompiler.compile(fullJavaName, classCode);
+//            Method[] methods = onClass.getMethods();
+//            for (Method method : methods) {
+//                if ((method.getModifiers() & Modifier.STATIC) != 0 && ruleMethodName.equals(method.getName())) {
+//                    onMethod = method;
+//                    break;
+//                }
+//            }
 
         } catch (Exception e) {
             throw new InitializationException("error happens while compile rule code in java", e);
+        }
+    }
+
+    @Override
+    public void postCompile(Map<String, Class<?>> compiledClasses) {
+        onClass = compiledClasses.get(fullJavaName);
+        if (onClass == null) {
+            throw new InitializationException("cannot find rule class " + fullJavaName);
+        }
+        Method[] methods = onClass.getMethods();
+        for (Method method : methods) {
+            if ((method.getModifiers() & Modifier.STATIC) != 0 && ruleMethodName.equals(method.getName())) {
+                onMethod = method;
+                break;
+            }
         }
     }
 
@@ -92,7 +123,12 @@ public class JavaActionImpl implements Action {
         int i = 0;
 
         for (String paramName : paramNames) {
-            Object o = variableResolverFactory.getVariableResolver(paramName).getValue();
+            Object o;
+            try {
+                o = variableResolverFactory.getVariableResolver(paramName).getValue();
+            } catch (UnresolveablePropertyException e) {
+                o = null;
+            }
             os[i] = o;
             i++;
         }

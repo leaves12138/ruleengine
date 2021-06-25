@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.ParseContext;
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
@@ -40,7 +41,12 @@ public class ContainCondition implements InnerCondition {
     private Map<String, Serializable> methodCalls = new HashMap();
     private Type classType;
 
+    private boolean inited = false;
+
     public void init(Class c) {
+        if (inited)
+            return;
+
         try {
 
             if (leftValue.getType() == JSON) {
@@ -80,6 +86,13 @@ public class ContainCondition implements InnerCondition {
         } catch (Exception e) {
             throw new RuntimeException("condition init faild", e);
         }
+
+        inited = true;
+    }
+
+    @Override
+    public void clear() {
+
     }
 
     private void initRights() {
@@ -128,11 +141,14 @@ public class ContainCondition implements InnerCondition {
     }
 
     @Override
-    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
+    public InnerResult evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
+        if (o.get() == null) {
+            return InnerResult.falseResult;
+        }
         try {
-            Object left = getLeftValue(o, variableResolverFactory);
+            Object left = getLeftValue(o.get(), variableResolverFactory);
             if (left == null)
-                return false;
+                return InnerResult.falseResult;
             left = resolveLeftValue(left);
 
             // invoke once
@@ -144,9 +160,9 @@ public class ContainCondition implements InnerCondition {
             if (invokeContain(left, variableResolverFactory)) {
                 if (symbolName != null)
                     variableResolverFactory.createVariable(symbolName, left);
-                return true;
+                return InnerResult.trueResult;
             }
-            return false;
+            return InnerResult.falseResult;
 
         } catch (InvocationTargetException e) {
             throw new RuntimeException("can't invoke getter method", e);

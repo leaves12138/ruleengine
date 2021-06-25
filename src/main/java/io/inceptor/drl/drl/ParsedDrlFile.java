@@ -4,6 +4,8 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 import io.inceptor.drl.annotation.DrlFunction;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.dialect.Dialect;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.drl.staticclass.StaticFunction;
 import io.inceptor.drl.exceptions.DatasourceNotFoundException;
 import io.inceptor.drl.exceptions.DrlFileNoFoundException;
@@ -24,6 +26,7 @@ public class ParsedDrlFile {
     private DrlSession session;
     private String fileName;
     private String location;
+    public  Dialect dialect = Dialect.JAVA;
     private String[] drlImports;
     private String[] datasourceImports;
     private Set<JavaImportClass> javaImportClasses = new HashSet<>();
@@ -36,7 +39,7 @@ public class ParsedDrlFile {
     private Map<String, Datasource> datasources = new HashMap();
     private Rule ruleHead;
     private Rule ruleTail;
-    private RuleEntry ruleEntry = new RuleEntry();
+    private RuleEntry ruleEntry;
     private MapVariableResolverFactory globalResolverFactory;
 
     private boolean inited = false;
@@ -67,10 +70,14 @@ public class ParsedDrlFile {
     }
 
     public void init(DrlSession session) {
+        if (inited) {
+            initGlobal();
+            return;
+        }
+
         this.session = session;
 
-        if (inited)
-            return;
+
         globalResolverFactory = new MapVariableResolverFactory();
 
         globalResolverFactory.setNextFactory(classImportResolverFactory);
@@ -93,10 +100,13 @@ public class ParsedDrlFile {
 
         initGlobal();
 
-        if (ruleHead != null)
-            ruleHead.init(location ,definedFunctions,globalImports , declaredClasses, javaImportClasses,staticImports , datasources, this, session, globalResolverFactory);
 
-        ruleEntry.init(ruleHead);
+        if (session.treeModeOn) {
+            ruleEntry = new TreeEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory, session.trees);
+        } else {
+            ruleEntry = new RuleEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory);
+        }
+
 
         inited = true;
     }
@@ -124,7 +134,7 @@ public class ParsedDrlFile {
             JavaImportClass javaImportClass = iter.next();
             if ("*".equals(javaImportClass.getClassName())) {
                 try {
-                    ImmutableSet<ClassPath.ClassInfo> clsSet = ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClasses(javaImportClass.getLocation());
+                    ImmutableSet<ClassPath.ClassInfo> clsSet = ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClassesRecursive(javaImportClass.getLocation());
                     for (ClassPath.ClassInfo info : clsSet) {
                         try {
                             JavaImportClass javaImportClass1 = new JavaImportClass(info.getName());
@@ -225,7 +235,7 @@ public class ParsedDrlFile {
         ruleTail = impDrl.ruleTail;
     }
 
-    public void accept(Object o) {
+    public void accept(Fact o) {
         removedRules.clear();
 
         ruleEntry.accept(o);
@@ -314,6 +324,10 @@ public class ParsedDrlFile {
 
     public void setGlobalExpr(String global) {
         this.globalExpr = global;
+    }
+
+    public void clear(){
+        ruleEntry.clear();
     }
 
 

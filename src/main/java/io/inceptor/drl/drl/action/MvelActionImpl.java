@@ -50,8 +50,13 @@ public class MvelActionImpl implements Action {
             MVEL.executeExpression(compiledCode, variableResolverFactory);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            throw e;
         }
+    }
+
+    @Override
+    public void postCompile(Map<String, Class<?>> compiledClasses) {
+        return;
     }
 
     @Override

@@ -25,6 +25,8 @@ GLOBAL : 'global' ;
 
 PACKAGE : 'package' ;
 
+DIALECT : 'dialect' ;
+
 IMPORT : 'import';
 
 EXISTS : 'exists';
@@ -38,6 +40,10 @@ DRL : 'drl' ;
 DOTDRL : '.drl' ;
 
 FROM : 'from';
+
+NOT : 'not' ;
+
+NEG : '!' ;
 //symbols
 
 LIMIT : 'limit';
@@ -45,6 +51,8 @@ LIMIT : 'limit';
 FUNCTION : 'function'  ;
 
 STATIC : 'static' ;
+
+CONTAINS1 : 'contains' ;
 
 SEP : ';' ;
 
@@ -84,7 +92,6 @@ LessEqual: '<=';
 
 GreaterEqual: '>=';
 
-
 //conditions
 //COMPARE : '=='
 //        | '>='
@@ -96,6 +103,7 @@ GreaterEqual: '>=';
 CONTAIN : 'in'
         | 'not in'
         ;
+
 
 //combines
 Identifier

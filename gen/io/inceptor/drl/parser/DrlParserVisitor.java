@@ -17,6 +17,12 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFile(DrlParser.FileContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link DrlParser#dialect}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDialect(DrlParser.DialectContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link DrlParser#pack}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -149,6 +155,13 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWhenClauses(DrlParser.WhenClausesContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code fromMethodCall}
+	 * labeled alternative in {@link DrlParser#whenClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFromMethodCall(DrlParser.FromMethodCallContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code fromStream}
 	 * labeled alternative in {@link DrlParser#whenClause}.
 	 * @param ctx the parse tree
@@ -162,13 +175,6 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFromDs(DrlParser.FromDsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code fromMethodCall}
-	 * labeled alternative in {@link DrlParser#whenClause}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFromMethodCall(DrlParser.FromMethodCallContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#conditions}.
 	 * @param ctx the parse tree
@@ -204,6 +210,13 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitAndOrCondition(DrlParser.AndOrConditionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code ContainsCondition}
+	 * labeled alternative in {@link DrlParser#condition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitContainsCondition(DrlParser.ContainsConditionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code CompareCondition}
 	 * labeled alternative in {@link DrlParser#condition}.
 	 * @param ctx the parse tree
@@ -229,6 +242,12 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitContainClause(DrlParser.ContainClauseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#containsClause}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitContainsClause(DrlParser.ContainsClauseContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#existsClause}.
 	 * @param ctx the parse tree
@@ -313,6 +332,18 @@ public interface DrlParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMapParam(DrlParser.MapParamContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#mapkey}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapkey(DrlParser.MapkeyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link DrlParser#mapvalue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMapvalue(DrlParser.MapvalueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link DrlParser#functions}.
 	 * @param ctx the parse tree

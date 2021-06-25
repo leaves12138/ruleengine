@@ -19,6 +19,8 @@ public interface Action {
 
     void compile(String packageName, String ruleName, Set<String> imports, Set<String> staticImports, List<SymbolClassName> classNameList);
 
+    void postCompile(Map<String, Class<?>> classes);
+
     void invoke(VariableResolverFactory variableResolverFactory);
 
     Dialect getDialect();

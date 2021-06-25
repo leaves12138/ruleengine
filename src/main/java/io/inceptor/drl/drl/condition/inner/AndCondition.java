@@ -1,6 +1,7 @@
 package io.inceptor.drl.drl.condition.inner;
 
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
+import io.inceptor.drl.drl.fact.Fact;
 import org.mvel2.integration.VariableResolverFactory;
 
 import java.util.LinkedList;
@@ -10,8 +11,11 @@ public class AndCondition implements InnerCondition {
     public InnerCondition leftCondition;
     public InnerCondition rightCondition;
 
-    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
-        return leftCondition.evaluate(o, variableResolverFactory) && rightCondition.evaluate(o, variableResolverFactory);
+    private boolean inited = false;
+
+    @Override
+    public InnerResult evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
+        return leftCondition.evaluate(o, variableResolverFactory).and(rightCondition.evaluate(o, variableResolverFactory));
     }
 
     @Override
@@ -24,8 +28,19 @@ public class AndCondition implements InnerCondition {
 
 
     public void init(Class c) {
+        if (inited)
+            return;
+
         leftCondition.init(c);
         rightCondition.init(c);
+
+        inited = true;
+    }
+
+    @Override
+    public void clear() {
+        leftCondition.clear();
+        rightCondition.clear();
     }
 
     public String getSql() {

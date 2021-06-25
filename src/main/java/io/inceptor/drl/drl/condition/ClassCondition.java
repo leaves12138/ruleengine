@@ -3,8 +3,10 @@ package io.inceptor.drl.drl.condition;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.JavaImportClass;
 import io.inceptor.drl.drl.condition.inner.InnerCondition;
+import io.inceptor.drl.drl.condition.inner.InnerResult;
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
 import io.inceptor.drl.drl.datasource.Datasource;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.drl.variable.MapVariableResolverFactory;
 import io.vertx.core.Future;
@@ -46,14 +48,15 @@ public class ClassCondition implements Condition{
         throw new RuntimeException("can't find " + className + " in declared classes");
     }
 
-    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
+    @Override
+    public boolean evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
         if (o == null)
             return false;
         if (!o.getClass().getSimpleName().equals(className)) {
             return false;
         }
         for (InnerCondition condition : conditionList) {
-            if (!condition.evaluate(o, variableResolverFactory)) {
+            if (!condition.evaluate(o, variableResolverFactory).pass()) {
                 return false;
             }
         }
@@ -66,32 +69,52 @@ public class ClassCondition implements Condition{
         return true;
     }
 
-    public List<MapVariableResolverFactory> evaluate(List<Object> os, List<MapVariableResolverFactory> vars) {
+    @Override
+    public ClassResult evaluate(List<Fact> os, List<MapVariableResolverFactory> vars) {
 
         List<MapVariableResolverFactory> dst = new LinkedList<>();
 
-        for (Object o : os) {
+        ClassResult classResult = new ClassResultImpl();
+
+        for (Fact o : os) {
             middle:
             for (MapVariableResolverFactory var : vars) {
-                Map<String, Object> mapCloned = (Map<String, Object>) ((HashMap) var.getVarMap()).clone();
-                MapVariableResolverFactory variableResolverFactory = new MapVariableResolverFactory(mapCloned);
-                variableResolverFactory.setNextFactory(var.getNextFactory());
+//                Map<String, Object> mapCloned = (Map<String, Object>) ((HashMap) var.getVarMap()).clone();
+                //target --> variableResolverFactory && mapCloned
+                Map<String, Object> map = new HashMap<>();
+                MapVariableResolverFactory variableResolverFactory = new MapVariableResolverFactory(map ,var);
+//                variableResolverFactory.setNextFactory(var.getNextFactory());
                 if (symbolName != null) {
-                    mapCloned.put(symbolName, o);
+//                    mapCloned.put(symbolName, o);
+//                    variableResolverFactory.createVariable(symbolName, o);
+                    map.put(symbolName, o.get());
                 }
+
+                InnerResult result = InnerResult.trueResult;
                 for (InnerCondition condition : conditionList) {
-                    if (!condition.evaluate(o, variableResolverFactory)) {
-                        if (symbolName != null) {
-                            mapCloned.remove(symbolName);
+                    result = result.and(condition.evaluate(o, variableResolverFactory));
+
+                    if (!result.isFuture()) {
+                        if (!result.pass()) {
+//                            if (symbolName != null) {
+//                                mapCloned.remove(symbolName);
+//                            }
+                            continue middle;
                         }
-                        continue middle;
                     }
                 }
-                dst.add(variableResolverFactory);
+
+                if (result.isFuture()) {
+                    classResult.addFutureResult(result, variableResolverFactory);
+                } else {
+                    classResult.addResult(variableResolverFactory);
+                }
             }
         }
 
-        return dst;
+        classResult.doneAdd(true);
+
+        return classResult;
     }
 
     public boolean evaluate(List<Object> os, SymbolTable symbolTable) {
@@ -129,6 +152,13 @@ public class ClassCondition implements Condition{
 
     public String getClassName() {
         return className;
+    }
+
+    @Override
+    public void clear() {
+        for (InnerCondition condition : conditionList) {
+            condition.clear();
+        }
     }
 
     public void setClassName(String className) {

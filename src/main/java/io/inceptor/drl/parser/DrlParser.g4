@@ -6,7 +6,9 @@ parser grammar DrlParser;
 
 options {tokenVocab = DrlLexer;}
 
-file : pack importDecls declares  global ? functions rules ;
+file : pack dialect? importDecls declares  global ? functions rules ;
+
+dialect : DIALECT STRING SEP?;
 
 pack : PACKAGE qualifiedName SEP?;
 
@@ -63,9 +65,10 @@ ruleFlag : flag=Identifier value=STRING  ;
 
 whenClauses : (whenClause) * ;
 
-whenClause : ( symbole=Identifier ':')? className=Identifier '(' conditions ')' #fromStream
+whenClause : methodCall #fromMethodCall
+           | ( symbole=Identifier ':')? className=Identifier '(' conditions ')' #fromStream
            | ( symbole=Identifier ':')? className=Identifier '(' conditions ')' FROM dbName=Identifier (LIMIT NUMBER)? #fromDs
-           | methodCall #fromMethodCall
+//           | methodCall #fromMethodCall
            ;
 
 conditions : (condition (',' condition)*)? ;
@@ -73,17 +76,20 @@ conditions : (condition (',' condition)*)? ;
 condition
     : compareClause   #CompareCondition
     | containClause   #ContainCondition
-    | existsClause    #ExistsCondition
+    | containsClause  #ContainsCondition
     | methodCall      #MethodCondition
+    | existsClause    #ExistsCondition
     | '(' condition ')' #ConditionSelf
     | left=condition op=(AndAnd|OrOr) right=condition #AndOrCondition
     ;
 
-compareClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) compare literal ;
+compareClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}|jsonPath{$lm=1;}) compare literal ;
 
-containClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) CONTAIN '[' literal (',' literal)* ']' ;
+containClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}|jsonPath{$lm=1;}) CONTAIN '[' literal (',' literal)* ']' ;
 
-existsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) EXISTS? ;
+containsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}) NOT? CONTAINS1 literal ;
+
+existsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}|jsonPath{$lm=1;}) EXISTS? ;
 
 compare
     :   Less
@@ -103,15 +109,17 @@ literal
     |   methodCall               #MethodBranch
     ;
 
-methodCall
-    :   Identifier('.' Identifier)* ( '('  methodParams ? ')' ) ?
-    |   methodCall('.' Identifier)+ ( '('  methodParams ? ')' ) ?
+methodCall returns[boolean hasParams = false, boolean not = false]
+    :   (NEG {$not = true;} )? name=Identifier('.' Identifier)+
+    |   (NEG {$not = true;} )? Identifier('.' Identifier)* ( '('  methodParams ? ')' {$hasParams = true;} ) ?
+    |   methodCall('.' Identifier)+ ( '('  methodParams ? ')' {$hasParams = true;} ) ?
     ;
 
 methodParams : methodParam (',' methodParam)* ;
 
 methodParam
-    :   literal
+    :   Identifier
+    |   literal
     |   methodCall
     |   mapParams
     ;
@@ -121,8 +129,12 @@ mapParams
     ;
 
 mapParam
-    :   (literal|Identifier) ':' (literal|Identifier)
+    :   mapkey ':' mapvalue
     ;
+
+mapkey :   literal | Identifier ;
+
+mapvalue :  literal | Identifier | mapParams;
 // function
 
 functions : function * ;
@@ -167,7 +179,7 @@ codeline : LINE ;
 
 
 qualifiedName
-    :   Identifier genericity? ('.' Identifier genericity?)* ('.' '*')?
+    :   (Identifier|RULE|FUNCTION) genericity? ('.' (Identifier|RULE|FUNCTION) genericity?)* ('.' '*')?
 //    |   FIdentifier ('.' FIdentifier)* ('.' '*')?
     ;
 

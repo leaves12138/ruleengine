@@ -1,6 +1,7 @@
 package io.inceptor.drl.drl.condition.inner;
 
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
+import io.inceptor.drl.drl.fact.Fact;
 import org.mvel2.integration.VariableResolverFactory;
 
 import java.util.LinkedList;
@@ -10,13 +11,26 @@ public class OrCondition implements InnerCondition {
     public InnerCondition leftCondition;
     public InnerCondition rightCondition;
 
+    private boolean inited = false;
+
     public void init(Class c) {
+        if (inited)
+            return;
+
         leftCondition.init(c);
         rightCondition.init(c);
+
+        inited = true;
     }
 
-    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
-        return leftCondition.evaluate(o, variableResolverFactory) || rightCondition.evaluate(o, variableResolverFactory);
+    @Override
+    public void clear() {
+        leftCondition.clear();
+        rightCondition.clear();
+    }
+
+    public InnerResult evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
+        return leftCondition.evaluate(o, variableResolverFactory).or(rightCondition.evaluate(o, variableResolverFactory));
     }
 
     @Override

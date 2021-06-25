@@ -21,7 +21,11 @@ public class JavaImportClass {
     }
 
     public Class init() throws ClassNotFoundException {
-        instance = Thread.currentThread().getContextClassLoader().loadClass(fullJavaName);
+        try {
+            instance = Thread.currentThread().getContextClassLoader().loadClass(fullJavaName);
+        } catch (ClassNotFoundException e) {
+            instance = Thread.currentThread().getContextClassLoader().loadClass(location + "$" + className);
+        }
         return instance;
     }
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.jayway.jsonpath.ParseContext;
 import io.inceptor.drl.drl.condition.symbol.SymbolClassName;
+import io.inceptor.drl.drl.fact.Fact;
 import io.inceptor.drl.exceptions.InitializationException;
 import io.inceptor.drl.util.Utils;
 import org.mvel2.MVEL;
@@ -34,19 +35,24 @@ public class ExistCondition implements InnerCondition {
     private Method getter;
     private Type classType;
 
+    private boolean inited = false;
+
     @Override
-    public boolean evaluate(Object o, VariableResolverFactory variableResolverFactory) {
+    public InnerResult evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
+        if (o.get() == null) {
+            return InnerResult.falseResult;
+        }
         try {
             Object left = getLeftValue(o, variableResolverFactory);
             if (left == null)
-                return false;
+                return InnerResult.falseResult;
             left = resolveLeftValue(left);
             if (left != null) {
                 if (symbolName != null)
                     variableResolverFactory.createVariable(symbolName, left);
-                return true;
+                return InnerResult.trueResult;
             }
-            return false;
+            return InnerResult.falseResult;
         } catch (Exception e) {
             throw new RuntimeException("can't invoke method", e);
         }
@@ -54,6 +60,9 @@ public class ExistCondition implements InnerCondition {
 
     @Override
     public void init(Class c) {
+        if (inited)
+            return;
+
         try {
 
             if (leftValue.getType() == JSON) {
@@ -88,6 +97,13 @@ public class ExistCondition implements InnerCondition {
         } catch (Exception e) {
             throw new RuntimeException("condition init faild", e);
         }
+
+        inited = true;
+    }
+
+    @Override
+    public void clear() {
+
     }
 
 
