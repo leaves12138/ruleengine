@@ -50,9 +50,9 @@ public class ClassCondition implements Condition{
 
     @Override
     public boolean evaluate(Fact o, VariableResolverFactory variableResolverFactory) {
-        if (o == null)
+        if (o.get() == null)
             return false;
-        if (!o.getClass().getSimpleName().equals(className)) {
+        if (!o.get().getClass().getSimpleName().equals(className)) {
             return false;
         }
         for (InnerCondition condition : conditionList) {
@@ -77,6 +77,11 @@ public class ClassCondition implements Condition{
         ClassResult classResult = new ClassResultImpl();
 
         for (Fact o : os) {
+            if (o.get() == null)
+                continue;
+
+            if (!conClass.isAssignableFrom(o.get().getClass()))
+                continue;
             middle:
             for (MapVariableResolverFactory var : vars) {
 //                Map<String, Object> mapCloned = (Map<String, Object>) ((HashMap) var.getVarMap()).clone();

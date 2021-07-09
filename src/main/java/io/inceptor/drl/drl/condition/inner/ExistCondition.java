@@ -43,7 +43,7 @@ public class ExistCondition implements InnerCondition {
             return InnerResult.falseResult;
         }
         try {
-            Object left = getLeftValue(o, variableResolverFactory);
+            Object left = getLeftValue(o.get(), variableResolverFactory);
             if (left == null)
                 return InnerResult.falseResult;
             left = resolveLeftValue(left);

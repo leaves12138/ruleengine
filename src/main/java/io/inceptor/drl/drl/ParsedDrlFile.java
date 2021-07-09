@@ -134,7 +134,7 @@ public class ParsedDrlFile {
             JavaImportClass javaImportClass = iter.next();
             if ("*".equals(javaImportClass.getClassName())) {
                 try {
-                    ImmutableSet<ClassPath.ClassInfo> clsSet = ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClassesRecursive(javaImportClass.getLocation());
+                    ImmutableSet<ClassPath.ClassInfo> clsSet = ClassPath.from(ClassLoader.getSystemClassLoader()).getTopLevelClasses(javaImportClass.getLocation());
                     for (ClassPath.ClassInfo info : clsSet) {
                         try {
                             JavaImportClass javaImportClass1 = new JavaImportClass(info.getName());

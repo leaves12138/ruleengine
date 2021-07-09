@@ -54,6 +54,22 @@ public class RuleEntry {
     public void accept(Fact o) {
         Rule rule = ruleHead;
         rule.accept(o, agenda);
+
+        while (agenda.hasReady()) {
+            Activation activation = agenda.getOneActivationByPriority();
+            activation.run();
+        }
+
+        while (agenda.remainSize() > 0) {
+            while (!agenda.hasReady()) {
+                LockSupport.parkNanos(10);
+            }
+
+            Activation activation = agenda.getOneActivationByPriority();
+            if (activation != null)
+                activation.run();
+            else throw new RuntimeException("activation is null");
+        }
     }
 
     public void accept(List<Fact> os) {

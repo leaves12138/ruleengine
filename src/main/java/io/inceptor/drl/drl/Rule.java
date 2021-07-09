@@ -133,15 +133,16 @@ public class Rule {
             }
 
             if (pass)
-                action.invoke(fame);
+                agenda.addActivation(() -> action.invoke(fame));
 
             for (Rule tempNext : tempNexts)
-                tempNext.accept(o, agenda);
+                agenda.addActivation(() ->
+                tempNext.accept(o, agenda));
         }
 
-//        if (next != null && !tempStop) {
-//            next.accept(o);
-//        }
+        if (next != null && !tempStop) {
+            agenda.addActivation(() ->  next.accept(o, agenda));
+        }
 
         tempNexts.clear();
 

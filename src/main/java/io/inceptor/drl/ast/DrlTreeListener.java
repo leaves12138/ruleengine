@@ -318,7 +318,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
 
             RightValue rightValue = new RightValue();
             rightValue.setType(getType(compareClauseContext.literal()));
-            rightValue.setValue(getString(compareClauseContext.literal().getText()));
+            rightValue.setValue(getValue(compareClauseContext.literal()));
             compareCondition.setSymbol(compareClauseContext.compare().getText());
             compareCondition.setRight(rightValue);
 
@@ -361,7 +361,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
             for (DrlParser.LiteralContext literalContext : containClauseContext.literal()) {
                 RightValue rightValue = new RightValue();
                 rightValue.setType(getType(literalContext));
-                rightValue.setValue(getString(literalContext.getText()));
+                rightValue.setValue(getValue(literalContext));
                 rightValueList.add(rightValue);
             }
             containCondition.setRights(rightValueList);
@@ -451,7 +451,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
 
             RightValue rightValue = new RightValue();
             rightValue.setType(getType(containsClauseContext.literal()));
-            rightValue.setValue(getString(containsClauseContext.literal().getText()));
+            rightValue.setValue(getValue(containsClauseContext.literal()));
             containsCondition.setSymbol(containsClauseContext.CONTAINS1().getText());
             containsCondition.setRight(rightValue);
 
@@ -486,45 +486,44 @@ public class DrlTreeListener extends DrlParserBaseListener {
             if (methodCallContext.methodCall() != null)
                 stack.push(methodCallContext.methodCall());
 
-            methodCallContext.methodParams().methodParam().forEach(methodParamContext -> {
-                if (methodParamContext.methodCall() != null) {
-                    stack.push(methodParamContext.methodCall());
-                }
-                else if (methodParamContext.Identifier() != null) {
-                    methodCondition.addParam(methodParamContext.getText());
-                }
-                else if (methodParamContext.literal() != null) {
+            if (methodCallContext.methodParams() != null) {
+                methodCallContext.methodParams().methodParam().forEach(methodParamContext -> {
+                    if (methodParamContext.methodCall() != null) {
+                        stack.push(methodParamContext.methodCall());
+                    } else if (methodParamContext.Identifier() != null) {
+                        methodCondition.addParam(methodParamContext.getText());
+                    } else if (methodParamContext.literal() != null) {
 
-                }
-                else {
-                    for(DrlParser.MapParamContext mapParamContext : methodParamContext.mapParams().mapParam()) {
-                        {
-                            DrlParser.MapkeyContext mapkeyContext = mapParamContext.mapkey();
-                            if (mapkeyContext.Identifier() != null) {
-                                methodCondition.addParam(mapkeyContext.getText());
-                            }
-                            if (mapkeyContext.literal() != null) {
-                                if (mapkeyContext.literal() instanceof DrlParser.MethodBranchContext &&
-                                        ((DrlParser.MethodBranchContext) mapParamContext.mapkey().literal()).methodCall().hasParams) {
-                                    methodCondition.addParam(((DrlParser.MethodBranchContext) mapkeyContext.literal()).methodCall().name.getText());
+                    } else {
+                        for (DrlParser.MapParamContext mapParamContext : methodParamContext.mapParams().mapParam()) {
+                            {
+                                DrlParser.MapkeyContext mapkeyContext = mapParamContext.mapkey();
+                                if (mapkeyContext.Identifier() != null) {
+                                    methodCondition.addParam(mapkeyContext.getText());
+                                }
+                                if (mapkeyContext.literal() != null) {
+                                    if (mapkeyContext.literal() instanceof DrlParser.MethodBranchContext &&
+                                            ((DrlParser.MethodBranchContext) mapParamContext.mapkey().literal()).methodCall().hasParams) {
+                                        methodCondition.addParam(((DrlParser.MethodBranchContext) mapkeyContext.literal()).methodCall().name.getText());
+                                    }
                                 }
                             }
-                        }
-                        {
-                            DrlParser.MapvalueContext mapvalueContext = mapParamContext.mapvalue();
-                            if (mapvalueContext.Identifier() != null) {
-                                methodCondition.addParam(mapvalueContext.getText());
-                            }
-                            if (mapvalueContext.literal() != null) {
-                                if (mapvalueContext.literal() instanceof DrlParser.MethodBranchContext &&
-                                        !((DrlParser.MethodBranchContext) mapvalueContext.literal()).methodCall().hasParams) {
-                                    methodCondition.addParam(((DrlParser.MethodBranchContext) mapvalueContext.literal()).methodCall().name.getText());
+                            {
+                                DrlParser.MapvalueContext mapvalueContext = mapParamContext.mapvalue();
+                                if (mapvalueContext.Identifier() != null) {
+                                    methodCondition.addParam(mapvalueContext.getText());
+                                }
+                                if (mapvalueContext.literal() != null) {
+                                    if (mapvalueContext.literal() instanceof DrlParser.MethodBranchContext &&
+                                            !((DrlParser.MethodBranchContext) mapvalueContext.literal()).methodCall().hasParams) {
+                                        methodCondition.addParam(((DrlParser.MethodBranchContext) mapvalueContext.literal()).methodCall().name.getText());
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
         }
 
 
@@ -576,5 +575,13 @@ public class DrlTreeListener extends DrlParserBaseListener {
 
     private String getString(String a) {
         return a.substring(1, a.length()-1);
+    }
+
+    private String getValue(DrlParser.LiteralContext ctx) {
+        if (ctx instanceof DrlParser.StringBranchContext) {
+            return getString(ctx.getText());
+        } else {
+            return ctx.getText();
+        }
     }
 }
