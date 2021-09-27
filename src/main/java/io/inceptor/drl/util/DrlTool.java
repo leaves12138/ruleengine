@@ -324,7 +324,7 @@ public class DrlTool {
 
     private void help() {
         info("\nWelcome To Transwarp Rule Engine Version " + DrlTool.VERSION);
-        red("usage: lsd [options] directory [directory ...]");
+        red("usage: lsp [options] directory [directory ...]");
         info("options:");
         for (Option o : optionDefs) {
             String name = o.name + (o.argType != OptionArgType.NONE ? " [arg]" : "");
