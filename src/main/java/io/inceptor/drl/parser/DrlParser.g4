@@ -83,13 +83,13 @@ condition
     | left=condition op=(AndAnd|OrOr) right=condition #AndOrCondition
     ;
 
-compareClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}|jsonPath{$lm=1;}) compare literal ;
+compareClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) compare literal ;
 
-containClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}|jsonPath{$lm=1;}) CONTAIN '[' literal (',' literal)* ']' ;
+containClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) CONTAIN '[' literal (',' literal)* ']' ;
 
 containsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}) NOT? CONTAINS1 literal ;
 
-existsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|methodCall{$lm=2;}|jsonPath{$lm=1;}) EXISTS? ;
+existsClause returns[int lm]: (symbole=Identifier ':')? (fieldName=Identifier{$lm=0;}|jsonPath{$lm=1;}|methodCall{$lm=2;}) EXISTS? ;
 
 compare
     :   Less

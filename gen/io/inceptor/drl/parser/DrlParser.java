@@ -2222,11 +2222,11 @@ public class DrlParser extends Parser {
 		public LiteralContext literal() {
 			return getRuleContext(LiteralContext.class,0);
 		}
-		public MethodCallContext methodCall() {
-			return getRuleContext(MethodCallContext.class,0);
-		}
 		public JsonPathContext jsonPath() {
 			return getRuleContext(JsonPathContext.class,0);
+		}
+		public MethodCallContext methodCall() {
+			return getRuleContext(MethodCallContext.class,0);
 		}
 		public TerminalNode Colon() { return getToken(DrlParser.Colon, 0); }
 		public List<TerminalNode> Identifier() { return getTokens(DrlParser.Identifier); }
@@ -2283,15 +2283,15 @@ public class DrlParser extends Parser {
 			case 2:
 				{
 				setState(329);
-				methodCall(0);
-				((CompareClauseContext)_localctx).lm = 2;
+				jsonPath();
+				((CompareClauseContext)_localctx).lm = 1;
 				}
 				break;
 			case 3:
 				{
 				setState(332);
-				jsonPath();
-				((CompareClauseContext)_localctx).lm = 1;
+				methodCall(0);
+				((CompareClauseContext)_localctx).lm = 2;
 				}
 				break;
 			}
@@ -2325,11 +2325,11 @@ public class DrlParser extends Parser {
 			return getRuleContext(LiteralContext.class,i);
 		}
 		public TerminalNode RightBracket() { return getToken(DrlParser.RightBracket, 0); }
-		public MethodCallContext methodCall() {
-			return getRuleContext(MethodCallContext.class,0);
-		}
 		public JsonPathContext jsonPath() {
 			return getRuleContext(JsonPathContext.class,0);
+		}
+		public MethodCallContext methodCall() {
+			return getRuleContext(MethodCallContext.class,0);
 		}
 		public TerminalNode Colon() { return getToken(DrlParser.Colon, 0); }
 		public List<TerminalNode> Identifier() { return getTokens(DrlParser.Identifier); }
@@ -2391,15 +2391,15 @@ public class DrlParser extends Parser {
 			case 2:
 				{
 				setState(346);
-				methodCall(0);
-				((ContainClauseContext)_localctx).lm = 2;
+				jsonPath();
+				((ContainClauseContext)_localctx).lm = 1;
 				}
 				break;
 			case 3:
 				{
 				setState(349);
-				jsonPath();
-				((ContainClauseContext)_localctx).lm = 1;
+				methodCall(0);
+				((ContainClauseContext)_localctx).lm = 2;
 				}
 				break;
 			}
@@ -2544,11 +2544,11 @@ public class DrlParser extends Parser {
 		public int lm;
 		public Token symbole;
 		public Token fieldName;
-		public MethodCallContext methodCall() {
-			return getRuleContext(MethodCallContext.class,0);
-		}
 		public JsonPathContext jsonPath() {
 			return getRuleContext(JsonPathContext.class,0);
+		}
+		public MethodCallContext methodCall() {
+			return getRuleContext(MethodCallContext.class,0);
 		}
 		public TerminalNode Colon() { return getToken(DrlParser.Colon, 0); }
 		public List<TerminalNode> Identifier() { return getTokens(DrlParser.Identifier); }
@@ -2606,15 +2606,15 @@ public class DrlParser extends Parser {
 			case 2:
 				{
 				setState(389);
-				methodCall(0);
-				((ExistsClauseContext)_localctx).lm = 2;
+				jsonPath();
+				((ExistsClauseContext)_localctx).lm = 1;
 				}
 				break;
 			case 3:
 				{
 				setState(392);
-				jsonPath();
-				((ExistsClauseContext)_localctx).lm = 1;
+				methodCall(0);
+				((ExistsClauseContext)_localctx).lm = 2;
 				}
 				break;
 			}
@@ -4739,14 +4739,14 @@ public class DrlParser extends Parser {
 		"\2\2\2\u0141\u0144\3\2\2\2\u0142\u0140\3\2\2\2\u0142\u0143\3\2\2\2\u0143"+
 		"\67\3\2\2\2\u0144\u0142\3\2\2\2\u0145\u0146\7\60\2\2\u0146\u0148\7&\2"+
 		"\2\u0147\u0145\3\2\2\2\u0147\u0148\3\2\2\2\u0148\u0151\3\2\2\2\u0149\u014a"+
-		"\7\60\2\2\u014a\u0152\b\35\1\2\u014b\u014c\5D#\2\u014c\u014d\b\35\1\2"+
-		"\u014d\u0152\3\2\2\2\u014e\u014f\5d\63\2\u014f\u0150\b\35\1\2\u0150\u0152"+
+		"\7\60\2\2\u014a\u0152\b\35\1\2\u014b\u014c\5d\63\2\u014c\u014d\b\35\1"+
+		"\2\u014d\u0152\3\2\2\2\u014e\u014f\5D#\2\u014f\u0150\b\35\1\2\u0150\u0152"+
 		"\3\2\2\2\u0151\u0149\3\2\2\2\u0151\u014b\3\2\2\2\u0151\u014e\3\2\2\2\u0152"+
 		"\u0153\3\2\2\2\u0153\u0154\5@!\2\u0154\u0155\5B\"\2\u01559\3\2\2\2\u0156"+
 		"\u0157\7\60\2\2\u0157\u0159\7&\2\2\u0158\u0156\3\2\2\2\u0158\u0159\3\2"+
 		"\2\2\u0159\u0162\3\2\2\2\u015a\u015b\7\60\2\2\u015b\u0163\b\36\1\2\u015c"+
-		"\u015d\5D#\2\u015d\u015e\b\36\1\2\u015e\u0163\3\2\2\2\u015f\u0160\5d\63"+
-		"\2\u0160\u0161\b\36\1\2\u0161\u0163\3\2\2\2\u0162\u015a\3\2\2\2\u0162"+
+		"\u015d\5d\63\2\u015d\u015e\b\36\1\2\u015e\u0163\3\2\2\2\u015f\u0160\5"+
+		"D#\2\u0160\u0161\b\36\1\2\u0161\u0163\3\2\2\2\u0162\u015a\3\2\2\2\u0162"+
 		"\u015c\3\2\2\2\u0162\u015f\3\2\2\2\u0163\u0164\3\2\2\2\u0164\u0165\7/"+
 		"\2\2\u0165\u0166\7\"\2\2\u0166\u016b\5B\"\2\u0167\u0168\7\'\2\2\u0168"+
 		"\u016a\5B\"\2\u0169\u0167\3\2\2\2\u016a\u016d\3\2\2\2\u016b\u0169\3\2"+
@@ -4759,7 +4759,7 @@ public class DrlParser extends Parser {
 		"\u017e\3\2\2\2\u017e\u017f\7\33\2\2\u017f\u0180\5B\"\2\u0180=\3\2\2\2"+
 		"\u0181\u0182\7\60\2\2\u0182\u0184\7&\2\2\u0183\u0181\3\2\2\2\u0183\u0184"+
 		"\3\2\2\2\u0184\u018d\3\2\2\2\u0185\u0186\7\60\2\2\u0186\u018e\b \1\2\u0187"+
-		"\u0188\5D#\2\u0188\u0189\b \1\2\u0189\u018e\3\2\2\2\u018a\u018b\5d\63"+
+		"\u0188\5d\63\2\u0188\u0189\b \1\2\u0189\u018e\3\2\2\2\u018a\u018b\5D#"+
 		"\2\u018b\u018c\b \1\2\u018c\u018e\3\2\2\2\u018d\u0185\3\2\2\2\u018d\u0187"+
 		"\3\2\2\2\u018d\u018a\3\2\2\2\u018e\u0190\3\2\2\2\u018f\u0191\7\20\2\2"+
 		"\u0190\u018f\3\2\2\2\u0190\u0191\3\2\2\2\u0191?\3\2\2\2\u0192\u0193\t"+

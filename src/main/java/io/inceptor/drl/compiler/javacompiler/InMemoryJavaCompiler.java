@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class InMemoryJavaCompiler {
 	private JavaCompiler javac;
-	private DrlClassLoader classLoader;
+//	private DrlClassLoader classLoader;
 	private Iterable<String> options;
 	boolean ignoreWarnings = false;
 
@@ -38,20 +38,20 @@ public class InMemoryJavaCompiler {
 	private InMemoryJavaCompiler() {
 		this.javac = ToolProvider.getSystemJavaCompiler();
 //		this.javac = new EclipseCompiler2();
-		this.classLoader = ClassLoaderFactory.getDrlClassLoader();
+//		this.classLoader = ClassLoaderFactory.getDrlClassLoader();
 	}
 
 	public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent) {
-		this.classLoader = ClassLoaderFactory.getDrlClassLoader(parent);
+//		this.classLoader = ClassLoaderFactory.getDrlClassLoader(parent);
 		return this;
 	}
 
 	/**
 	 * @return the class loader used internally by the compiler
 	 */
-	public ClassLoader getClassloader() {
-		return classLoader;
-	}
+//	public ClassLoader getClassloader() {
+//		return classLoader;
+//	}
 
 	/**
 	 * Options used by the compiler, e.g. '-Xlint:unchecked'.
@@ -94,7 +94,7 @@ public class InMemoryJavaCompiler {
 			code[i] = new CompiledCode(iter.next().getClassName());
 		}
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
-		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(null, null, null), classLoader);
+		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(null, null, null), ClassLoaderFactory.getDrlClassLoader());
 		JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
 		boolean result = task.call();
 		if (!result || collector.getDiagnostics().size() > 0) {
@@ -126,7 +126,7 @@ public class InMemoryJavaCompiler {
 
 		Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 		for (String className : sourceCodes.keySet()) {
-			classes.put(className, classLoader.loadClass(className));
+			classes.put(className, ClassLoaderFactory.getDrlClassLoader().loadClass(className));
 		}
 		return classes;
 	}

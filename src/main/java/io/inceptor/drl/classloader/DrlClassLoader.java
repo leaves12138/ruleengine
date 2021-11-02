@@ -21,6 +21,10 @@ public class DrlClassLoader extends ClassLoader {
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
+        Class c = findLoadedClass(name);
+        if (c != null) {
+            return c;
+        }
         CompiledCode cc = customCompiledCode.get(name);
         if (cc == null) {
             cc = customCompiledCode.get(name.replace(".","/"));

@@ -64,7 +64,7 @@ public class ClassCondition implements Condition{
 
         if (symbolName != null) {
 //            symbolTable.put(symbolName, o);
-            variableResolverFactory.createVariable(symbolName, o);
+            variableResolverFactory.createVariable(symbolName, o.get());
         }
         return true;
     }
