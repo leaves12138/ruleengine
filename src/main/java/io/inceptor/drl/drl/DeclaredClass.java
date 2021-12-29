@@ -7,8 +7,10 @@ import io.inceptor.drl.asm.MethodVisitor;
 import io.inceptor.drl.classloader.ClassLoaderFactory;
 import io.inceptor.drl.classloader.DrlClassLoader;
 import io.inceptor.drl.classwriter.*;
+import io.inceptor.drl.compiler.javacompiler.InMemoryJavaCompiler;
 import io.inceptor.drl.drl.symboltable.SymbolTable;
 import io.inceptor.drl.exceptions.NoInstanceException;
+import org.apache.kafka.common.utils.ByteUtils;
 
 import static io.inceptor.drl.asm.Opcodes.*;
 
@@ -21,6 +23,7 @@ public class DeclaredClass {
 
     public static String jvmPrefix = "io/inceptor/asm/AUTOGENERATE/";
     public static String javaPrefix = "io.inceptor.asm.AUTOGENERATE.";
+    public static String packageName = "io.inceptor.asm.AUTOGENERATE";
     public static String jvmAnnotationPrefix = "io/inceptor/drl/annotation/";
 
     private String oriText;
@@ -113,10 +116,14 @@ public class DeclaredClass {
         classWriter.visitEnd();
         DrlClassLoader drlClassLoader = ClassLoaderFactory.getDrlClassLoader();
 
-        Class c = drlClassLoader.defineClass(getJavaFullName(), classWriter.toByteArray());
+        byte[] bytes = classWriter.toByteArray();
+        byte[] bytes1 = new byte[bytes.length];
+        System.arraycopy(bytes, 0, bytes1, 0, bytes.length);
+        Class c = drlClassLoader.defineClass(getJavaFullName(), bytes);
         instance = c;
 
         ParsedDrlFile.classImportResolverFactory.addClass(instance);
+        InMemoryJavaCompiler.instance().addPojoClass(getJavaFullName(), bytes1);
 
         return instance;
     }

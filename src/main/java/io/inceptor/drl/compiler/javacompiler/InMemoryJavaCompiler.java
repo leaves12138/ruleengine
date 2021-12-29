@@ -5,20 +5,27 @@ import io.inceptor.drl.classloader.DrlClassLoader;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler2;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompilerImpl;
+import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.tools.*;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 /**
  * Compile Java sources in-memory
  */
 public class InMemoryJavaCompiler {
+	private static Logger log = LoggerFactory.getLogger(InMemoryJavaCompiler.class);
 	private JavaCompiler javac;
 //	private DrlClassLoader classLoader;
 	private Iterable<String> options;
 	boolean ignoreWarnings = false;
 
 	private Map<String, SourceCode> sourceCodes = new HashMap<String, SourceCode>();
+	private Map<String, PojoClass> pojoCodes = new HashMap<String, PojoClass>();
 
 	private static InMemoryJavaCompiler inMemoryJavaCompiler = new InMemoryJavaCompiler();
 
@@ -38,20 +45,7 @@ public class InMemoryJavaCompiler {
 	private InMemoryJavaCompiler() {
 		this.javac = ToolProvider.getSystemJavaCompiler();
 //		this.javac = new EclipseCompiler2();
-//		this.classLoader = ClassLoaderFactory.getDrlClassLoader();
 	}
-
-	public InMemoryJavaCompiler useParentClassLoader(ClassLoader parent) {
-//		this.classLoader = ClassLoaderFactory.getDrlClassLoader(parent);
-		return this;
-	}
-
-	/**
-	 * @return the class loader used internally by the compiler
-	 */
-//	public ClassLoader getClassloader() {
-//		return classLoader;
-//	}
 
 	/**
 	 * Options used by the compiler, e.g. '-Xlint:unchecked'.
@@ -85,17 +79,29 @@ public class InMemoryJavaCompiler {
 		if (sourceCodes.size() == 0) {
 			throw new CompilationException("No source code to compile");
 		}
-		Collection<SourceCode> compilationUnits = sourceCodes.values();
-		CompiledCode[] code;
-
-		code = new CompiledCode[compilationUnits.size()];
-		Iterator<SourceCode> iter = compilationUnits.iterator();
-		for (int i = 0; i < code.length; i++) {
-			code[i] = new CompiledCode(iter.next().getClassName());
-		}
+		Collection<SourceCode> sourceCodesCollection = sourceCodes.values();
+		Collection<PojoClass> pojoClassCollection = pojoCodes.values();
+		Collection<JavaFileObject> compilationUnits = new ArrayList<>();
+		compilationUnits.addAll(sourceCodesCollection);
 		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
-		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(null, null, null), ClassLoaderFactory.getDrlClassLoader());
-		JavaCompiler.CompilationTask task = javac.getTask(null, fileManager, collector, options, null, compilationUnits);
+		ExtendedStandardJavaFileManager fileManager = new ExtendedStandardJavaFileManager(javac.getStandardFileManager(collector, null, null), ClassLoaderFactory.getDrlClassLoader());
+		JavaCompiler.CompilationTask task = javac.getTask(new Writer() {
+			@Override
+			public void write(@NotNull char[] cbuf, int off, int len) throws IOException {
+				System.err.println(new String(cbuf, off, len));
+//				log.warn(new String(cbuf, off, len));
+			}
+
+			@Override
+			public void flush() throws IOException {
+
+			}
+
+			@Override
+			public void close() throws IOException {
+
+			}
+		}, fileManager, collector, options, null, compilationUnits);
 		boolean result = task.call();
 		if (!result || collector.getDiagnostics().size() > 0) {
 			StringBuffer exceptionMsg = new StringBuffer();
@@ -155,5 +161,14 @@ public class InMemoryJavaCompiler {
 	public InMemoryJavaCompiler addSource(String className, String sourceCode) throws Exception {
 		sourceCodes.put(className, new SourceCode(className, sourceCode));
 		return this;
+	}
+
+	public InMemoryJavaCompiler addPojoClass(String className, byte[] content) {
+		pojoCodes.put(className, new PojoClass(className ,content));
+		return this;
+	}
+
+	public Map<String, PojoClass> getPojoCodes() {
+		return pojoCodes;
 	}
 }

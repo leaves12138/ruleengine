@@ -20,6 +20,11 @@ public class DrlClassLoader extends ClassLoader {
     }
 
     @Override
+    public Class<?> loadClass(String name) throws ClassNotFoundException{
+        return super.loadClass(name);
+    }
+
+    @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         Class c = findLoadedClass(name);
         if (c != null) {

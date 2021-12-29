@@ -573,7 +573,7 @@ public class DrlTreeListener extends DrlParserBaseListener {
         return null;
     }
 
-    private String getString(String a) {
+    private static String getString(String a) {
         return a.substring(1, a.length()-1);
     }
 
@@ -583,5 +583,14 @@ public class DrlTreeListener extends DrlParserBaseListener {
         } else {
             return ctx.getText();
         }
+    }
+
+
+    public static Rule parseSingleRule(DrlParser.OneruleContext ctx) {
+        Rule rule = new Rule();
+        rule.setClassCondition(new ArrayList<>());
+        rule.setName(getString(ctx.ruleName.getText()));
+        rule.setText(ctx.getText());
+        return rule;
     }
 }

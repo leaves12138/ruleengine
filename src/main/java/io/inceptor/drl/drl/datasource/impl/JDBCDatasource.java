@@ -235,7 +235,7 @@ public class JDBCDatasource extends AbstractDatasource {
             case "mysql":
                 return new MySQLDialect();
             default:
-                throw new RuntimeException("can't find dialect");
+                return new MySQLDialect();
         }
     }
 

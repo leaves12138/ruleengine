@@ -4,6 +4,7 @@ import io.inceptor.drl.ast.DrlTreeListener;
 import io.inceptor.drl.ast.DsTreeVisitor;
 import io.inceptor.drl.drl.DeclaredClass;
 import io.inceptor.drl.drl.ParsedDrlFile;
+import io.inceptor.drl.drl.Rule;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.exceptions.ParseDrlRuntimeException;
 import io.inceptor.drl.parser.DrlLexer;
@@ -86,6 +87,13 @@ public class DrlTool {
         parser.setTokenStream(new CommonTokenStream(lexer));
         walker.walk(drlTreeListener, parser.file());
         return drlTreeListener.getParsedDrlFile();
+    }
+
+    public static Rule parseOneRule(InputStream in) throws IOException {
+        lexer.setInputStream(CharStreams.fromStream(in));
+        parser.setTokenStream(new CommonTokenStream(lexer));
+        DrlParser.OneruleContext onerule = parser.onerule();
+        return drlTreeListener.parseSingleRule(onerule);
     }
 
     public static List<Datasource> parseDs(InputStream is) throws IOException {

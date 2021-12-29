@@ -6,11 +6,10 @@ import java.util.concurrent.*;
 public class MilliSecondTimeWheel {
   static int started = 0;
   volatile static long currentMillisecond = 0L;
-  ScheduledExecutorService schedulor = Executors.newScheduledThreadPool(1);
-  Future future = null;
+  static ScheduledExecutorService schedulor = Executors.newScheduledThreadPool(1);
 
   synchronized
-  public void start() {
+  public static void start() {
     started += 1;
     if (started == 1){
       currentMillisecond = System.currentTimeMillis();
@@ -19,7 +18,7 @@ public class MilliSecondTimeWheel {
   }
 
   synchronized
-  public void stop() {
+  public static void stop() {
     started -= 1;
     if (started == 0 && SecondTimeWheelTask.task != null) {
       SecondTimeWheelTask.task.cancel(true);
@@ -28,7 +27,7 @@ public class MilliSecondTimeWheel {
       started = 0;
   }
 
-  public long getMilliTime() {
+  public static long getMilliTime() {
     if (started <= 0) {
       throw new RuntimeException("time wheel has not started");
     }

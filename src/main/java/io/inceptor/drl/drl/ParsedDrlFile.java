@@ -26,7 +26,7 @@ public class ParsedDrlFile {
     private DrlSession session;
     private String fileName;
     private String location;
-    public  Dialect dialect = Dialect.JAVA;
+    public  Dialect dialect = Dialect.MVEL;
     private String[] drlImports;
     private String[] datasourceImports;
     private Set<JavaImportClass> javaImportClasses = new HashSet<>();
@@ -39,7 +39,7 @@ public class ParsedDrlFile {
     private Map<String, Datasource> datasources = new HashMap();
     private Rule ruleHead;
     private Rule ruleTail;
-    private RuleEntry ruleEntry;
+    private Entry ruleEntry;
     private MapVariableResolverFactory globalResolverFactory;
 
     private boolean inited = false;
@@ -96,17 +96,21 @@ public class ParsedDrlFile {
 
         initDefinedFunctions();
 
-        initGlobalExpr();
-
         initGlobal();
 
+        initGlobalExpr();
 
-        if (session.treeModeOn) {
-            ruleEntry = new TreeEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory, session.trees);
-        } else {
-            ruleEntry = new RuleEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory);
+        switch (session.mode) {
+            case Serial:
+                ruleEntry = new RuleEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory);
+                break;
+            case Tree:
+                ruleEntry = new TreeEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory, session.trees);
+                break;
+            case Parallel:
+                ruleEntry = new ParallelEntry().init(ruleHead, location, definedFunctions, globalImports, declaredClasses, javaImportClasses, staticImports, datasources, this, session, globalResolverFactory);
+                break;
         }
-
 
         inited = true;
     }
@@ -215,7 +219,6 @@ public class ParsedDrlFile {
 
             staticImports.add(function.getImportSentence());
         }
-
     }
 
     private Datasource searchDatasource(String dsStr) {
@@ -245,7 +248,7 @@ public class ParsedDrlFile {
         return ruleHead;
     }
 
-    public RuleEntry getRuleEntry() {
+    public Entry getRuleEntry() {
         return ruleEntry;
     }
 

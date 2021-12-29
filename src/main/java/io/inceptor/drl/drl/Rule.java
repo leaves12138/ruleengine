@@ -27,7 +27,7 @@ public class Rule {
 
     private DrlSession session;
 
-    private ParsedDrlFile parsedDrlFile;
+    private Entry entry;
 
     private String name;
 
@@ -53,10 +53,10 @@ public class Rule {
 
     private long ruleEndTime = -1;
 
-    public void init(String packageName, Set<DefinedFunction> definedFunctions,Set<GlobalImport> globalImports ,List<DeclaredClass> declaredClasses , Set<JavaImportClass> javaImportClasses,Set<String> staticImports, Map<String, Datasource> dataSources, ParsedDrlFile parsedDrlFile, DrlSession session, VariableResolverFactory global) {
+    public void init(String packageName, Set<DefinedFunction> definedFunctions,Set<GlobalImport> globalImports ,List<DeclaredClass> declaredClasses , Set<JavaImportClass> javaImportClasses,Set<String> staticImports, Map<String, Datasource> dataSources, Entry entry, DrlSession session, VariableResolverFactory global) {
         if (!inited) {
             this.session = session;
-            this.parsedDrlFile = parsedDrlFile;
+            this.entry = entry;
 
             initRuleFlag();
 
@@ -85,10 +85,6 @@ public class Rule {
 
             inited = true;
         }
-
-//        if (next != null) {
-//            next.init(packageName, definedFunctions, globalImports, declaredClasses, javaImportClasses,staticImports ,dataSources, parsedDrlFile, session, global);
-//        }
     }
 
     public void postInit(Map<String, Class<?>> classMap) {
@@ -140,13 +136,7 @@ public class Rule {
                 tempNext.accept(o, agenda));
         }
 
-        if (next != null && !tempStop) {
-            agenda.addActivation(() ->  next.accept(o, agenda));
-        }
-
         tempNexts.clear();
-
-        tempStop = false;
     }
 
     //prepare for cep
@@ -175,11 +165,6 @@ public class Rule {
             for (MapVariableResolverFactory frame : frames) {
                 agenda.addActivation(() -> action.invoke(frame));
             }
-
-            if (next != null) {
-                agenda.addActivation(() -> next.accept(os, agenda));
-            }
-
         }
 
         tempNexts.clear();
@@ -218,10 +203,6 @@ public class Rule {
                 }
             }
         }
-
-//        if (next != null && !tempStop) {
-//            next.accept(os);
-//        }
 
         tempNexts.clear();
 
@@ -293,44 +274,22 @@ public class Rule {
     }
 
     private boolean shouldIInvoke() {
+        if (!isActive())
+            return false;
 
+        return true;
+    }
+
+    public boolean isActive() {
         if (ruleStartTime != -1 && SecondTimeWheel.getMilliTime() < ruleStartTime)
             return false;
 
         if (ruleEndTime != -1 && SecondTimeWheel.getMilliTime() > ruleEndTime)
             return false;
 
-        return parsedDrlFile.shouldIInvoke(this);
+        return true;
     }
 
-    public void fireRuleFile(String fileName) {
-        ParsedDrlFile drlFile = session.fetchParsedDrlFile(fileName);
-        drlFile.getDeclaredClasses().addAll(parsedDrlFile.getDeclaredClasses());
-        List<DeclaredClass> ori = drlFile.getDeclaredClasses();
-        List<DeclaredClass> des = parsedDrlFile.getDeclaredClasses();
-        outer:
-        for (DeclaredClass d : des) {
-            for (DeclaredClass o : ori) {
-                if (o.getJVMFullName().equals(d.getJVMFullName()))
-                    continue outer;
-            }
-            ori.add(d);
-        }
-
-        if (!drlFile.isInited())
-            drlFile.init(session);
-        Rule tempRuleHead = drlFile.getRuleHead();
-        tempNexts.add(tempRuleHead);
-    }
-
-    //not used for now, wait to code for flag tempStop
-    public void stopThisOne() {
-        tempStop = true;
-    }
-
-    public boolean removeRuleOnce(String ruleName) {
-        return parsedDrlFile.removeOnce(ruleName);
-    }
 
     public List<SymbolClassName> getParams(Set<GlobalImport> globalImports) {
         List<SymbolClassName> list = new LinkedList<>();
@@ -369,6 +328,14 @@ public class Rule {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getRuleStartTime() {
+        return ruleStartTime;
+    }
+
+    public long getRuleEndTime() {
+        return ruleEndTime;
     }
 
     public List<Condition> getClassCondition() {

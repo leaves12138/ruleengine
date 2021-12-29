@@ -6,7 +6,7 @@ parser grammar DrlParser;
 
 options {tokenVocab = DrlLexer;}
 
-file : pack dialect? importDecls declares  global ? functions rules ;
+file : pack dialect? importDecls declares functions global ? rules ;
 
 dialect : DIALECT STRING SEP?;
 

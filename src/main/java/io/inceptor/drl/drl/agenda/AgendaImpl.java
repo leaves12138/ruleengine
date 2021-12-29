@@ -2,10 +2,11 @@ package io.inceptor.drl.drl.agenda;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class AgendaImpl implements Agenda {
-    LinkedList<Activation> waitinglist = new LinkedList<>();
-    LinkedList<Activation> readylist = new LinkedList<>();
+    LinkedBlockingQueue<Activation> waitinglist = new LinkedBlockingQueue<>();
+    LinkedBlockingQueue<Activation> readylist = new LinkedBlockingQueue<>();
 
     @Override
     public boolean addActivation(Activation activation) {
@@ -23,12 +24,12 @@ public class AgendaImpl implements Agenda {
     @Override
     public Activation getOneActivationByPriority() {
         if (!readylist.isEmpty())
-            return readylist.pop();
+            return readylist.poll();
 
         searchReady();
 
         if (!readylist.isEmpty())
-            return readylist.pop();
+            return readylist.poll();
 
         return null;
     }

@@ -22,8 +22,6 @@ public class ClassCondition implements Condition{
     protected List<InnerCondition> conditionList;
 
     public void init(List<DeclaredClass> list, Set<JavaImportClass> javaImportClasses, Map<String, Datasource> datasources) {
-
-
         for (DeclaredClass declaredClass : list) {
             if (declaredClass.getClassName().equals(className)) {
                 conClass = declaredClass.getInstance();
@@ -43,7 +41,6 @@ public class ClassCondition implements Condition{
                 }
                 return;
             }
-
         }
         throw new RuntimeException("can't find " + className + " in declared classes");
     }
@@ -60,7 +57,6 @@ public class ClassCondition implements Condition{
                 return false;
             }
         }
-
 
         if (symbolName != null) {
 //            symbolTable.put(symbolName, o);
@@ -116,7 +112,6 @@ public class ClassCondition implements Condition{
                 }
             }
         }
-
         classResult.doneAdd(true);
 
         return classResult;

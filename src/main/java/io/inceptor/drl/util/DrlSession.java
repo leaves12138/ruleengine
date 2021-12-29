@@ -1,9 +1,7 @@
 package io.inceptor.drl.util;
 
-import io.inceptor.drl.drl.DeclaredClass;
-import io.inceptor.drl.drl.ParsedDrlFile;
-import io.inceptor.drl.drl.Rule;
-import io.inceptor.drl.drl.RuleEntry;
+import io.inceptor.drl.drl.*;
+import io.inceptor.drl.drl.bean.RuleStatus;
 import io.inceptor.drl.drl.datasource.Datasource;
 import io.inceptor.drl.drl.fact.Fact;
 
@@ -27,13 +25,15 @@ public class DrlSession {
 
     public Map<String, String> trees = new HashMap<>();
 
-    private RuleEntry entry;
+    private Entry entry;
 
     private String entrance;
 
     private boolean stopped;
 
-    public boolean treeModeOn = false;
+    private int parallelSize = Runtime.getRuntime().availableProcessors() * 2;
+
+    public Mode mode = Mode.Parallel;
 
     static {
         SecondTimeWheel.start();
@@ -86,11 +86,10 @@ public class DrlSession {
         while (!stopped) {
             try {
                 Object c = objectQueue.take();
-                if (c instanceof  List) {
+                if (c instanceof List) {
                     entry.accept((List<Fact>) c);
-                }
-                else
-                    entry.accept((Fact)c);
+                } else
+                    entry.accept((Fact) c);
             } catch (InterruptedException e) {
                 throw new RuntimeException("drl back session iterrupted");
             }
@@ -103,16 +102,35 @@ public class DrlSession {
         Object c;
         try {
             while ((c = objectQueue.poll()) != null) {
-                if (c instanceof  List) {
+                if (c instanceof List) {
                     entry.accept((List<Fact>) c);
-                }
-                else
+                } else
                     entry.accept((Fact) c);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         close();
+    }
+
+    public List<RuleStatus> listRunningRules() {
+        initEntry();
+        return entry.listRunningRules();
+    }
+
+    public boolean removeRule(String ruleId) {
+        initEntry();
+        return entry.removeRule(ruleId);
+    }
+
+    public boolean insertRuleToHead(InputStream inputStream) throws IOException{
+        Rule rule = DrlTool.parseOneRule(inputStream);
+        entry.initAndInsertToHead(rule);
+        return true;
+    }
+
+    public boolean insertRuleToTail(InputStream inputStream) {
+        return false;
     }
 
     public void setEntrance(String en) {
@@ -202,8 +220,33 @@ public class DrlSession {
         }
     }
 
+    public void setParallel(int x) {
+        parallelSize = x;
+    }
+
+    public int getParallelSize() {
+        return parallelSize;
+    }
+
+    public void reInitEntry() {
+        if (entry != null) {
+            entry.clear();
+        }
+        if (entrance == null)
+            throw new RuntimeException("there is no entrance in this session");
+        if (!drlCache.containsKey(entrance))
+            throw new RuntimeException("can't find drl file " + entrance + " in cache");
+        ParsedDrlFile file = drlCache.get(entrance);
+        file.init(this);
+        entry = file.getRuleEntry();
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
     public void setTreeMode(Boolean treeModeOn) {
-        this.treeModeOn = treeModeOn;
+        this.mode = Mode.Tree;
     }
 
     public void addTree(String treeName, String treeJson) {
@@ -217,10 +260,14 @@ public class DrlSession {
 
         if (o instanceof List) {
             List<Fact> list = new ArrayList<>();
-            ((List)o).forEach(t -> list.add(Fact.of(t)));
+            ((List) o).forEach(t -> list.add(Fact.of(t)));
             return list;
         }
 
         return Fact.of(o);
+    }
+
+    public static enum Mode {
+        Serial, Tree, Parallel
     }
 }
